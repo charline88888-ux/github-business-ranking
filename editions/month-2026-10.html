@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GitHub 商业价值月榜 · 2026-10 | GitHub 商业价值排行榜</title>
+<style>
+  :root {
+    --bg: #0b0f1a; --card: rgba(23,31,51,.72); --card-hover: rgba(30,41,66,.85);
+    --border: rgba(148,163,184,.16); --border-strong: rgba(148,163,184,.32);
+    --text: #e5e7eb; --muted: #94a3b8; --dim: #64748b;
+    --accent: #7c9cff; --accent-2: #c084fc;
+    --gold: #f6c453; --silver: #cbd5e1; --bronze: #d18b5c;
+    --s: #34d399; --a: #60a5fa; --b: #fbbf24; --c: #94a3b8;
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; min-height: 100vh; color: var(--text);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(124,156,255,.18), transparent 60%),
+      radial-gradient(1000px 500px at 95% 0%, rgba(192,132,252,.14), transparent 55%),
+      radial-gradient(900px 600px at 50% 110%, rgba(79,209,197,.08), transparent 60%),
+      var(--bg);
+    font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    line-height: 1.6;
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 28px 24px 80px; }
+  .back { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px; }
+  .back:hover { color: var(--text); border-color: var(--accent); }
+  header.hero { margin: 18px 0 24px; }
+  .hero-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border-strong); background: rgba(124,156,255,.08); color: #c7d2fe; font-size: 13px; font-weight: 600; letter-spacing: .4px; }
+  .pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+  .pill.score-pill { background: rgba(52,211,153,.08); border-color: rgba(52,211,153,.3); color: #a7f3d0; }
+  h1 { margin: 14px 0 10px; font-size: clamp(28px, 4vw, 44px); line-height: 1.15; letter-spacing: -.5px; font-weight: 800; background: linear-gradient(100deg, #f8fafc 10%, #a5b4fc 55%, #e9d5ff 90%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .sub { color: var(--muted); max-width: 900px; font-size: 15px; }
+  .stats { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+  .stat { flex: 1 1 150px; min-width: 140px; padding: 13px 16px; border-radius: 14px; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(30,41,66,.6), rgba(17,24,39,.55)); }
+  .stat .k { font-size: 12px; color: var(--dim); letter-spacing: .5px; text-transform: uppercase; }
+  .stat .v { font-size: 23px; font-weight: 750; margin-top: 2px; }
+  .stat .v em { font-style: normal; font-size: 13px; color: var(--muted); font-weight: 500; margin-left: 4px; }
+  .toolbar { position: sticky; top: 12px; z-index: 50; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 12px; margin: 24px 0 18px; border-radius: 16px; border: 1px solid var(--border); background: rgba(11,15,26,.85); backdrop-filter: blur(14px); box-shadow: 0 12px 32px rgba(0,0,0,.35); }
+  .search { flex: 1 1 240px; display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 11px; border: 1px solid var(--border-strong); background: rgba(15,23,42,.7); }
+  .search svg { flex: none; opacity: .6; }
+  .search input { flex: 1; background: transparent; border: 0; outline: 0; color: var(--text); font-size: 14px; font-family: inherit; }
+  .search input::placeholder { color: var(--dim); }
+  .search kbd { font-size: 11px; color: var(--dim); border: 1px solid var(--border); border-radius: 6px; padding: 1px 6px; font-family: inherit; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { cursor: pointer; user-select: none; font-size: 13px; font-weight: 600; padding: 7px 13px; border-radius: 999px; border: 1px solid var(--border); background: rgba(30,41,66,.45); color: var(--muted); transition: all .18s ease; }
+  .chip:hover { border-color: var(--border-strong); color: var(--text); }
+  .chip.active { color: #0b0f1a; background: linear-gradient(100deg, var(--accent), var(--accent-2)); border-color: transparent; }
+  .chip.tier-S.active { background: linear-gradient(100deg, #34d399, #10b981); }
+  .chip.tier-A.active { background: linear-gradient(100deg, #60a5fa, #3b82f6); }
+  .chip.tier-B.active { background: linear-gradient(100deg, #fbbf24, #f59e0b); }
+  .chip.tier-C.active { background: linear-gradient(100deg, #cbd5e1, #94a3b8); }
+  .chip .n { opacity: .75; font-size: 11px; margin-left: 4px; }
+  select { appearance: none; cursor: pointer; padding: 9px 34px 9px 13px; border-radius: 11px; border: 1px solid var(--border-strong); background: rgba(15,23,42,.7) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center; color: var(--text); font-size: 13px; font-family: inherit; }
+  .btn { cursor: pointer; font-size: 13px; font-weight: 650; padding: 9px 14px; border-radius: 11px; border: 1px solid var(--border-strong); background: rgba(30,41,66,.6); color: var(--text); transition: all .18s ease; font-family: inherit; }
+  .btn:hover { border-color: var(--accent); color: #dbeafe; }
+  .count { color: var(--dim); font-size: 13px; margin-left: auto; white-space: nowrap; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 18px; align-items: start; }
+  .card { position: relative; overflow: hidden; border-radius: var(--radius); border: 1px solid var(--border); background: var(--card); backdrop-filter: blur(10px); box-shadow: 0 6px 18px rgba(0,0,0,.22); transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease, background .22s ease; animation: rise .45s ease both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .card:hover { transform: translateY(-3px); border-color: var(--border-strong); background: var(--card-hover); box-shadow: 0 16px 36px rgba(0,0,0,.4); }
+  .card.tier-S { border-color: rgba(52,211,153,.35); }
+  .card.tier-A { border-color: rgba(96,165,250,.3); }
+  .card .glow { position: absolute; inset: -40% 40% auto -40%; height: 180px; background: radial-gradient(closest-side, rgba(124,156,255,.18), transparent); pointer-events: none; }
+  .card .inner { padding: 18px 18px 16px; }
+  .card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .rank { flex: none; width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; font-weight: 800; font-size: 16px; background: rgba(148,163,184,.12); color: var(--muted); border: 1px solid var(--border); }
+  .top1 .rank { background: linear-gradient(145deg, #f6c453, #b8860b); color: #1a1400; border-color: transparent; }
+  .top2 .rank { background: linear-gradient(145deg, #e2e8f0, #94a3b8); color: #0f172a; border-color: transparent; }
+  .top3 .rank { background: linear-gradient(145deg, #e0a06a, #a15f2b); color: #1a0d02; border-color: transparent; }
+  .card-title { min-width: 0; flex: 1; }
+  .card-title .name { font-size: 17px; font-weight: 750; letter-spacing: -.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card-title .owner { font-size: 12.5px; color: var(--dim); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cat { flex: none; font-size: 11.5px; font-weight: 700; padding: 4px 9px; border-radius: 999px; background: color-mix(in srgb, var(--c, var(--accent)) 16%, transparent); color: var(--c, var(--accent)); border: 1px solid color-mix(in srgb, var(--c, var(--accent)) 34%, transparent); white-space: nowrap; }
+  .tagline { color: #cbd5e1; font-size: 14.5px; min-height: 44px; margin: 2px 0 10px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; color: var(--dim); font-size: 12.5px; }
+  .lang { display: inline-flex; align-items: center; gap: 6px; }
+  .lang i { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); display: inline-block; }
+  .stars b { color: #f6c453; font-weight: 700; }
+  .period-up { color: #86efac; font-weight: 650; }
+  .tier-badge { display: inline-flex; align-items: center; gap: 5px; font-weight: 800; font-size: 12px; padding: 2px 8px; border-radius: 7px; }
+  .tier-badge.S { color: #052e16; background: linear-gradient(135deg, #6ee7b7, #34d399); }
+  .tier-badge.A { color: #052e16; background: linear-gradient(135deg, #93c5fd, #60a5fa); }
+  .tier-badge.B { color: #451a03; background: linear-gradient(135deg, #fde68a, #fbbf24); }
+  .tier-badge.C { color: #0f172a; background: linear-gradient(135deg, #e2e8f0, #94a3b8); }
+  .score-line { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 10px; border-radius: 10px; background: rgba(52,211,153,.06); border: 1px solid rgba(52,211,153,.16); font-size: 12.5px; color: var(--muted); }
+  .score-line .score { font-size: 19px; font-weight: 800; color: #a7f3d0; flex: none; }
+  .score-line .label { white-space: nowrap; flex: none; color: var(--muted); }
+  .score-line .money { color: #cbd5e1; min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .tag { font-size: 11.5px; color: var(--muted); padding: 3px 8px; border-radius: 7px; background: rgba(148,163,184,.1); border: 1px solid rgba(148,163,184,.12); }
+  .actions { display: flex; gap: 8px; margin-top: 14px; }
+  .actions .btn { flex: 1; text-align: center; }
+  .actions .gh { flex: none; width: 44px; display: grid; place-items: center; padding: 9px 0; }
+  .card .details { border-top: 1px solid var(--border); padding: 0 18px; max-height: 0; opacity: 0; overflow: hidden; transition: max-height .42s ease, opacity .3s ease, padding .3s ease; }
+  .card.open .details { max-height: 3200px; opacity: 1; padding: 16px 18px 20px; }
+  .section { margin-bottom: 16px; }
+  .section h4 { margin: 0 0 8px; font-size: 12.5px; letter-spacing: 1px; color: var(--dim); text-transform: uppercase; font-weight: 700; }
+  .section ul { margin: 0; padding-left: 18px; color: #cbd5e1; font-size: 13.5px; }
+  .section li { margin-bottom: 6px; }
+  .section li::marker { color: var(--accent); }
+  .install-box { border: 1px solid var(--border-strong); border-radius: 12px; background: rgba(2,6,23,.65); overflow: hidden; }
+  .install-box .cmd { display: flex; align-items: center; gap: 10px; padding: 11px 13px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px; color: #a7f3d0; white-space: pre-wrap; word-break: break-all; }
+  .install-box .cmd .prompt { color: #4fd1c5; flex: none; }
+  .copy { margin-left: auto; flex: none; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--muted); border-radius: 8px; padding: 4px 9px; font-size: 11.5px; font-family: inherit; transition: all .18s; }
+  .copy:hover { color: var(--text); border-color: var(--accent); }
+  .copy.done { color: #86efac; border-color: #22c55e; }
+  .install-box ol { margin: 0; padding: 10px 14px 12px 30px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--border); }
+  .install-box ol li { margin: 4px 0; }
+  .install-note { margin-top: 8px; font-size: 12.5px; color: #fca5a5; background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.18); border-radius: 9px; padding: 8px 11px; }
+  .scenarios { display: flex; flex-wrap: wrap; gap: 7px; }
+  .scenarios span { font-size: 12.5px; color: #c4b5fd; background: rgba(192,132,252,.1); border: 1px solid rgba(192,132,252,.22); border-radius: 8px; padding: 4px 9px; }
+  .audience { font-size: 13px; color: var(--muted); }
+  .highlight { font-size: 13px; color: #fde68a; background: rgba(246,196,83,.08); border-left: 3px solid var(--gold); border-radius: 0 9px 9px 0; padding: 8px 11px; }
+  .biz { border: 1px solid rgba(52,211,153,.25); border-radius: 12px; background: rgba(52,211,153,.05); padding: 12px 13px; }
+  .biz-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+  .biz-head .big { font-size: 30px; font-weight: 850; color: #a7f3d0; line-height: 1; }
+  .biz-head .of { color: var(--dim); font-size: 12px; }
+  .bars { display: grid; gap: 6px; margin: 10px 0 12px; }
+  .bar { display: grid; grid-template-columns: 74px 1fr 30px; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); }
+  .bar .track { height: 7px; border-radius: 99px; background: rgba(148,163,184,.15); overflow: hidden; }
+  .bar .fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #34d399, #60a5fa); }
+  .biz-row { font-size: 12.5px; color: #cbd5e1; margin: 7px 0; display: flex; gap: 8px; }
+  .biz-row b { color: #a7f3d0; white-space: nowrap; font-weight: 650; }
+  .biz-row.risk b { color: #fca5a5; }
+  .biz-row.risk { color: #fecaca; }
+  .links { display: flex; gap: 14px; margin-top: 6px; font-size: 12.5px; }
+  .links a { color: var(--accent); border-bottom: 1px dashed rgba(124,156,255,.4); }
+  .empty { grid-column: 1/-1; text-align: center; color: var(--dim); padding: 60px 20px; border: 1px dashed var(--border-strong); border-radius: var(--radius); }
+  footer { margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--border); color: var(--dim); font-size: 12.5px; display: flex; flex-wrap: wrap; gap: 8px 22px; justify-content: space-between; }
+  footer a { color: var(--muted); border-bottom: 1px dotted var(--border-strong); }
+  .toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 20px); background: #111827; border: 1px solid var(--border-strong); color: var(--text); padding: 10px 16px; border-radius: 11px; font-size: 13px; opacity: 0; pointer-events: none; transition: all .25s ease; z-index: 100; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  @media (max-width: 560px) {
+    .wrap { padding: 22px 14px 60px; }
+    .grid { grid-template-columns: 1fr; }
+    .toolbar { position: static; }
+    .count { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">← 返回排行榜首页</a>
+  <header class="hero">
+    <div class="hero-top">
+      <span class="pill"><span class="dot"></span>GITHUB 商业价值榜</span>
+      <span class="pill" id="periodPill">-</span>
+      <span class="pill score-pill" id="updatePill">-</span>
+    </div>
+    <h1 id="pageTitle">-</h1>
+    <p class="sub" id="introText"></p>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <div class="toolbar" id="toolbar">
+    <label class="search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="搜索项目、标签、功能、变现方向…" autocomplete="off" />
+      <kbd>/</kbd>
+    </label>
+    <div class="chips" id="tierChips"></div>
+    <div class="chips" id="chips"></div>
+    <select id="sort" title="排序方式">
+      <option value="rank">按榜单排名</option>
+      <option value="score">按商业价值分</option>
+      <option value="period">按本期新增 Star</option>
+      <option value="stars">按总 Star</option>
+      <option value="name">按名称</option>
+    </select>
+    <button class="btn" id="expandAll">展开全部</button>
+    <span class="count" id="count"></span>
+  </div>
+
+  <main class="grid" id="grid"></main>
+
+  <footer>
+    <span id="footSource">数据来源：GitHub</span>
+    <span id="footCadence"></span>
+  </footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const DATA = {"mode":"edition","edition":{"schemaVersion":3,"period":"month","label":"2026-10","periodText":"2026-10-01 ~ 2026-10-31","title":"GitHub 商业价值月榜","edition":1,"generatedAt":"2026-10-18T12:08:50.949Z","source":"https://github.com/trending?since=monthly","intro":"本月 GitHub Trending 月榜中，按「商业价值」筛选出的 20 个项目（前 10 为高优先级，后 10 为补充观察池）。评分看五件事：市场需求、变现路径、可集成性、壁垒、成熟度（S≥85 / A≥75 / B≥60 / C<60）。","categories":[{"id":"ai-agent","name":"AI Agent 工具","emoji":"🤖","color":"#7c9cff"},{"id":"ai-infra","name":"AI 基础设施","emoji":"🏗️","color":"#60a5fa"},{"id":"reversing","name":"逆向与安全","emoji":"🔍","color":"#ff8f6b"},{"id":"creative","name":"AI 创作与设计","emoji":"🎨","color":"#c084fc"},{"id":"media","name":"内容生产","emoji":"🎬","color":"#4fd1c5"},{"id":"gaming","name":"游戏与移植","emoji":"🎮","color":"#f6c453"},{"id":"productivity","name":"个人效率","emoji":"🚀","color":"#86efac"},{"id":"vertical","name":"垂直行业方案","emoji":"🏢","color":"#f472b6"},{"id":"education","name":"学习与教育","emoji":"🎓","color":"#f9a8d4"},{"id":"dev-tools","name":"开发者工具","emoji":"🛠️","color":"#facc15"}],"items":[{"rank":1,"name":"Paperclip","fullName":"paperclipai/paperclip","owner":"paperclipai","url":"https://github.com/paperclipai/paperclip","homepage":"https://paperclip.ing","language":"TypeScript","license":"MIT","stars":103865,"periodStars":22891,"categoryId":"ai-agent","tags":["Agent 编排","团队协作","开源","治理"],"tagline":"团队级 AI Agent 编排平台：把一群 Agent 当成一个部门来管理","features":["Node.js 服务 + React 管理界面，可视化编排团队中的多个 Agent","内置权限与治理能力（ai-governance），适合企业内使用","开源可自托管，同时提供 Paperclip Cloud 托管候补"],"install":"npx paperclipai@latest onboard --yes","installSteps":["需要 Node.js 环境，运行 onboard 命令完成初始化","按 Quickstart 启动服务与 Web UI，接入你的模型与 Agent","如需托管版可加入 Paperclip Cloud waitlist"],"installNote":"MIT；自托管需自行承担部署与运维。","scenarios":["企业内部多 Agent 团队协作与权限治理","多 Agent 工作流编排、监控与审计","给非技术团队提供统一的 Agent 管理入口"],"audience":"AI 工程团队、企业平台团队、Agent 重度使用者","highlight":"月度榜首：10.4 万星、月增 2.3 万；已推出 Cloud waitlist，开源引流 + 托管变现路径非常清晰。","commercial":{"score":92,"tier":"S","dimensions":{"market":20,"monetization":20,"integration":18,"moat":15,"execution":19},"monetization":"开源自托管免费 → Cloud 托管订阅 + 企业治理/SSO/审计增值，按团队席位收费","rationale":"Agent 管理平台是 2026 最明确的 B2B 入口之一：企业要的不是单个 Agent，而是可控、可审计的 Agent 团队。项目已有规模 + 明确 Cloud 路径。","risk":"赛道拥挤，需与模型厂商、大厂 Agent 平台竞争；自托管客户的运维成本会拖慢扩张。"}},{"rank":2,"name":"ECC","fullName":"affaan-m/ECC","owner":"affaan-m","url":"https://github.com/affaan-m/ECC","homepage":"https://ecc.tools","language":"JavaScript","license":"MIT","stars":282953,"periodStars":23023,"categoryId":"ai-agent","tags":["Agent 工程化","Harness 优化","技能","记忆"],"tagline":"Agent Harness 性能优化系统：技能、本能、记忆、安全与研究式开发","features":["面向 Claude Code / Codex / Cursor 等 harness 的统一优化层","技能 + 记忆 + 安全 + research-first 工作流组合","一条命令接入：npx ecc-universal setup"],"install":"npx ecc-universal@2.2.3 setup","installSteps":["只从官方渠道安装（GitHub / npm / GitHub App / plugin）","运行 setup 后按文档选择要优化的 Agent 与能力"],"installNote":"项目方特别提醒：仅从官方渠道安装，谨防仿冒包（供应链风险）。","scenarios":["团队统一 Agent 能力基线","提升 Agent 交付质量、稳定性与安全性","降低多 Agent 协作的返工率"],"audience":"AI 工程团队、Agent 平台开发者、效率工具作者","highlight":"28.3 万星、月增 2.3 万，是「Agent 工程化」赛道的旗舰项目。","commercial":{"score":90,"tier":"S","dimensions":{"market":20,"monetization":16,"integration":18,"moat":14,"execution":19},"monetization":"企业版/托管服务、培训认证、生态插件分发；与顾问式交付结合","rationale":"Agent 工程化是 2026 企业 AI 落地的主战场，ECC 已形成规模与心智，企业可通过付费获取支持、合规与定制。","risk":"开源本体可被复制；依赖各 harness 生态变化，需要持续跟进。"}},{"rank":3,"name":"VoiceStudio","fullName":"debpalash/VoiceStudio","owner":"debpalash","url":"https://github.com/debpalash/VoiceStudio","homepage":"https://voicestudio.sh","language":"Python","license":"AGPL-3.0","stars":74195,"periodStars":40333,"categoryId":"creative","tags":["语音克隆","本地优先","TTS/STT","有声书"],"tagline":"完全本地的开源 ElevenLabs 替代：克隆/设计声音、配音、转写、有声书，646 种语言","features":["本地运行（CUDA / MLX 加速），语音数据不出本机","声音克隆、声音设计、视频配音、听写、转写、有声书全链路","提供本地 API 与 MCP，可给 Agent 调用"],"install":"curl -fsSL https://voicestudio.sh/install sh","installSteps":["一键脚本安装，按平台与显存选择 CUDA 或 MLX 后端","启动后按向导下载模型并配置工作流"],"installNote":"AGPL-3.0：若要作为 SaaS 或闭源产品分发，务必先评估许可证义务。","scenarios":["本地配音、有声书与播客制作","隐私敏感的语音数据处理","给 Agent 提供本地 TTS/STT/配音能力"],"audience":"内容创作者、有声书/播客制作团队、隐私敏感企业","highlight":"月增 4 万，是本月增速最快的创意类项目；本地化 + 646 语言正中『数据不出本机』的需求。","commercial":{"score":83,"tier":"A","dimensions":{"market":20,"monetization":14,"integration":16,"moat":15,"execution":18},"monetization":"付费桌面版/企业授权 + 托管云服务；声音库与模板订阅；给 Agent 厂商做本地语音组件","rationale":"ElevenLabs 的本地替代需求明确：隐私、成本、离线。全球创作者与企业的付费意愿已经被竞品验证。","risk":"AGPL-3.0 对商业化限制较大；本地推理对硬件有要求，模型质量需持续追赶云端。"}},{"rank":4,"name":"Hindsight","fullName":"vectorize-io/hindsight","owner":"vectorize-io","url":"https://github.com/vectorize-io/hindsight","homepage":"https://hindsight.vectorize.io","language":"Python","license":"MIT","stars":51024,"periodStars":27228,"categoryId":"ai-infra","tags":["Agent 记忆","基础设施","API/SDK","云服务"],"tagline":"会学习的 Agent 记忆层：让 Agent 记住经验并越用越聪明","features":["持久化 Agent 记忆与经验，跨会话复用","提供 Python/Node SDK 与 API，易集成","既有开源自托管，也有 Hindsight Cloud 商业服务"],"install":"Docker（推荐）或 pip install hindsight-api","installSteps":["按 README 用 Docker 启动服务（推荐）","安装 hindsight-client，接入你的 Agent 框架","或直接使用 Hindsight Cloud，省去运维"],"installNote":"MIT；云服务与自托管同源，迁移成本低。","scenarios":["长期运行 Agent 的记忆与经验管理","多 Agent 共享团队知识","Agent 记忆机制的评测与研究"],"audience":"Agent 基础设施团队、AI 应用开发者、研究者","highlight":"月增 2.7 万，Agent Memory 是 2026 最热的基础设施方向之一，且已有云服务变现。","commercial":{"score":84,"tier":"A","dimensions":{"market":20,"monetization":16,"integration":17,"moat":14,"execution":17},"monetization":"开源自托管引流 → Cloud 托管按用量/席位计费；企业版记忆治理与合规","rationale":"记忆是 Agent 从『工具』变成『同事』的关键，基础设施层天然按量收费，vectorize.io 已有商业化经验。","risk":"与模型厂商内置记忆（如 ChatGPT/Claude 原生记忆）存在竞争；数据隐私与删除合规要求高。"}},{"rank":5,"name":"FreeLLMAPI","fullName":"tashfeenahmed/freellmapi","owner":"tashfeenahmed","url":"https://github.com/tashfeenahmed/freellmapi","homepage":"https://freellmapi.co","language":"TypeScript","license":"MIT","stars":36841,"periodStars":9863,"categoryId":"ai-infra","tags":["LLM 路由","免费额度","成本优化","OpenAI 兼容"],"tagline":"34 家免费 LLM 提供商的统一 /v1 入口，每月 7.4B tokens 额度","features":["聚合 34 家提供商的免费额度 + 自定义 OpenAI 兼容端点","智能路由、自动故障转移、密钥加密存储","已商品化：freellmapi.co $19/年起"],"install":"npx freellmapi setup-claude --url http://localhost:3001 --api-key <key>","installSteps":["本地部署（npx）或直接注册 freellmapi.co 云服务","用 setup 命令把统一端点接入 Claude Code 等客户端"],"installNote":"免费额度依赖各家 ToS，商用前请确认合规与稳定性。","scenarios":["个人/小团队零成本使用多模型","给 Agent 做成本路由与容灾层","统一 OpenAI 兼容入口，降低迁移成本"],"audience":"个人开发者、小团队、成本敏感的 AI 应用","highlight":"月增约 1 万；『免费额度聚合 + 智能路由』直接省钱，且已经有 $19/年订阅。","commercial":{"score":85,"tier":"S","dimensions":{"market":19,"monetization":20,"integration":16,"moat":12,"execution":18},"monetization":"SaaS 订阅（$19/年）+ 企业版路由/审计/密钥托管；按 token 或席位抽成","rationale":"成本是 AI 应用的头号痛点，产品已有真实定价与订阅模型，属于『小切口、强付费』的典型。","risk":"免费额度政策随时变化；各提供商可能封禁聚合行为，合规与可持续性风险高。"}},{"rank":6,"name":"Octop","fullName":"TencentCloud/Octop","owner":"TencentCloud","url":"https://github.com/TencentCloud/Octop","homepage":"https://octop.cloud","language":"Python","license":"MIT","stars":9838,"periodStars":6631,"categoryId":"ai-agent","tags":["自托管","多用户","长期记忆","腾讯云"],"tagline":"腾讯云开源的自托管多用户、多 Agent AI 助手","features":["多用户 + 多 Agent 架构，可并行执行任务","长期记忆与本地优先设计","提供 Windows/Linux 一键安装脚本"],"install":"curl -fsSL https://finnie-1258344699.cos.ap-guangzhou.myqcloud.com/octop/install.sh bash","installSteps":["运行安装脚本（Windows 用 install.bat）","按文档配置模型与访问账号，浏览器打开使用"],"installNote":"MIT；自托管需自行运维，注意数据与账号安全。","scenarios":["家庭/团队共享的自托管 AI 助手","本地优先的 Agent 工作台","中小企业内网私有部署"],"audience":"自托管爱好者、中小企业 IT、隐私敏感用户","highlight":"月增 6600+；大厂开源的自托管助手，天然适合做企业私有化与云服务。","commercial":{"score":82,"tier":"A","dimensions":{"market":18,"monetization":18,"integration":15,"moat":13,"execution":18},"monetization":"企业私有化部署/支持服务 + 云托管版本（octop.cloud）；与腾讯云生态集成","rationale":"『私有化 + 多用户 + 多 Agent』是政企客户的刚需，腾讯云背书能带来渠道与信任。","risk":"自托管运维门槛高；需与开源同类（Open WebUI 等）和大厂产品竞争。"}},{"rank":7,"name":"Cua","fullName":"trycua/cua","owner":"trycua","url":"https://github.com/trycua/cua","homepage":"https://cua.ai","language":"Rust","license":"MIT","stars":30080,"periodStars":7435,"categoryId":"ai-infra","tags":["Computer-use","沙箱","Agent 评测","虚拟化"],"tagline":"给 AI Agent 一台能用的电脑：跨 OS 沙箱、驱动与基准","features":["Cua Spaces 给 Agent 完整桌面（Mac 与自有机器）","Cua Driver 桌面自动化、Lume 本地 VM、CUA-S1 决策模型","Cua Bench 评测 computer-use Agent"],"install":"curl -fsSL https://cua.ai/install.sh sh","installSteps":["安装 Cua Spaces 应用，创建第一个 Space","或 uv tool install 'cua-bench[browser]' 做评测"],"installNote":"MIT；桌面自动化涉及权限与安全，建议在隔离环境试用。","scenarios":["Computer-use Agent 训练、评测与数据生成","桌面自动化流程搭建","Agent 操作真实软件的测试环境"],"audience":"Agent 研究者、自动化工程师、RPA 团队","highlight":"月增 7400+；computer-use 是 Agent 从『聊天』走向『干活』的关键基础设施。","commercial":{"score":80,"tier":"A","dimensions":{"market":19,"monetization":15,"integration":16,"moat":13,"execution":17},"monetization":"Cua Spaces 订阅 + 企业授权 + 评测/数据服务；与 RPA/桌面软件厂商合作","rationale":"让 Agent 操作真实电脑是刚需，评测与沙箱是上游卡位，适合做订阅制基础设施。","risk":"桌面自动化安全与合规风险；跨平台差异与维护成本高。"}},{"rank":8,"name":"Security Audit Skill","fullName":"cloudflare/security-audit-skill","owner":"cloudflare","url":"https://github.com/cloudflare/security-audit-skill","homepage":null,"language":"JavaScript","license":"MIT","stars":30902,"periodStars":22054,"categoryId":"reversing","tags":["安全审计","Agent 技能","漏洞发现","Cloudflare"],"tagline":"把编码 Agent 变成安全审计员：Cloudflare 开源的多阶段审计技能","features":["侦察 → 覆盖驱动漏洞搜寻 → 候选验证 → 结构化输出 → 独立复核","机器可读的发现与独立验证记录","源自 Cloudflare 内部漏洞发现 harness 的实战经验"],"install":"npx skills add https://github.com/cloudflare/security-audit-skill","installSteps":["用 skills CLI 安装为 Agent 技能","在支持的 Agent 中触发多阶段安全审计流程"],"installNote":"审计结果需人工复核；请仅对已授权代码库使用。","scenarios":["代码库安全审计与漏洞发现","上线前安全门禁","安全团队 AI 辅助审计流程"],"audience":"安全团队、DevSecOps、需要代码审计的研发团队","highlight":"月增 2.2 万；Cloudflare 官方背书，把『安全审计 harness』产品化为可复用技能。","commercial":{"score":74,"tier":"B","dimensions":{"market":19,"monetization":10,"integration":15,"moat":14,"execution":16},"monetization":"企业安全审计服务/报告 + 与 CI/安全平台集成；专家咨询","rationale":"安全审计是强付费场景，但技能本身开源，变现要绑定服务与平台集成。","risk":"误报/漏报责任风险；纯技能形态难直接收费。"}},{"rank":9,"name":"OpenShell","fullName":"NVIDIA/OpenShell","owner":"NVIDIA","url":"https://github.com/NVIDIA/OpenShell","homepage":"https://docs.nvidia.com/openshell/latest/","language":"Rust","license":"Apache-2.0","stars":16584,"periodStars":7956,"categoryId":"ai-infra","tags":["Agent 运行时","安全隔离","NVIDIA","私有部署"],"tagline":"NVIDIA 的可信私有运行时：安全运行成群的自主 Agent","features":["为自主 Agent 提供隔离、安全的运行环境","稳定发布节奏（0.1.x）、扩展面与 API","Python 包 + 一键安装 + 官方文档"],"install":"curl -LsSf https://raw.githubusercontent.com/NVIDIA/OpenShell/main/install.sh sh","installSteps":["运行安装脚本安装运行时","按 docs.nvidia.com/openshell 配置隔离策略并接入 Agent"],"installNote":"Apache-2.0；早期版本，生产使用需评估稳定性。","scenarios":["企业 Agent 安全运行与隔离","多租户 Agent 平台底座","自主 Agent 生产部署"],"audience":"平台工程团队、安全团队、Agent 基础设施厂商","highlight":"月增约 8000；NVIDIA 入场说明『Agent 运行时安全』已成为基础设施级赛道。","commercial":{"score":78,"tier":"A","dimensions":{"market":19,"monetization":12,"integration":16,"moat":13,"execution":18},"monetization":"企业支持订阅 + 与 NVIDIA 生态/硬件捆绑；托管 Agent 运行时","rationale":"企业落地 Agent 的第一顾虑是安全与隔离，运行时层是长期收费点，且有 NVIDIA 渠道。","risk":"项目早期（0.1.x），生态标准未定；大厂同类竞争激烈。"}},{"rank":10,"name":"Financial Services","fullName":"anthropics/financial-services","owner":"anthropics","url":"https://github.com/anthropics/financial-services","homepage":null,"language":"Python","license":"Apache-2.0","stars":40229,"periodStars":5410,"categoryId":"vertical","tags":["金融行业","Agent 模板","Anthropic","企业"],"tagline":"Anthropic 官方金融行业 Agent 参考实现：投行/行研/PE/财富管理","features":["行业 Agent + Skills + 数据连接器，覆盖投行、股票研究、私募、财富管理","同一份 prompt/skill 既能作 Cowork 插件，也能通过 Managed Agents API 部署","官方参考实现，可直接作为企业行业 Agent 起点"],"install":"Claude Cowork 插件安装 / Claude Managed Agents API 部署","installSteps":["按 README 选择插件安装或 API 部署路径","接入自有工作流引擎与数据连接器"],"installNote":"金融合规与数据安全要求高，生产使用需企业级治理。","scenarios":["金融机构内部 Agent 工作流","投研、尽调、财富管理辅助","行业 Agent 的二次开发基线"],"audience":"金融科技团队、银行/券商/资管、行业解决方案商","highlight":"月增 5400+；垂直行业 Agent 官方样板，B2B 付费意愿高、客单价高。","commercial":{"score":78,"tier":"A","dimensions":{"market":17,"monetization":18,"integration":15,"moat":13,"execution":15},"monetization":"企业 License/托管部署 + 行业定制实施/咨询；金融数据连接器增值","rationale":"金融是 AI 付费能力最强的行业之一，官方模板降低了行业解决方案商的交付成本。","risk":"强监管行业，合规与数据安全门槛高；依赖 Anthropic 生态。"}},{"rank":11,"name":"HyperFrames","fullName":"heygen-com/hyperframes","owner":"heygen-com","url":"https://github.com/heygen-com/hyperframes","homepage":"https://hyperframes.dev","language":"TypeScript","license":"Apache-2.0","stars":66307,"periodStars":15041,"categoryId":"media","tags":["视频生成","HTML","Agent","渲染"],"tagline":"用 HTML/CSS/动画写视频，渲染成确定性 MP4","features":["用 HTML 定义视频时间轴、图层与轨道","支持 GSAP / CSS / Lottie / Three.js / Anime.js / WAAPI","渲染结果确定可复现，CLI + Agent skills + MCP 三入口"],"install":"npx hyperframes init my-video","installSteps":["初始化项目","npx hyperframes preview 实时预览","npx skills add heygen-com/hyperframes 接入 Agent"],"installNote":"Apache-2.0；依赖本地 ffmpeg/puppeteer 渲染环境。","scenarios":["产品宣传与数据视频","批量短视频生产","AI Agent 自动化视频流水线"],"audience":"内容创作者、前端动效开发者、营销团队","highlight":"月增 1.5 万；『HTML 即视频』的确定性渲染是内容工厂底座。","commercial":{"score":87,"tier":"S","dimensions":{"market":20,"monetization":18,"integration":18,"moat":13,"execution":18},"monetization":"视频渲染 API / 托管渲染 SaaS，按渲染时长或并发计费","rationale":"内容生产自动化是 AI 最大落地场景之一，渲染层可按量收费且客户粘性高。","risk":"渲染基础设施成本高，ffmpeg/puppeteer 运维复杂。"}},{"rank":12,"name":"Context Mode","fullName":"mksglu/context-mode","owner":"mksglu","url":"https://github.com/mksglu/context-mode","homepage":"https://context-mode.com","language":"TypeScript","license":"ELv2","stars":30607,"periodStars":7235,"categoryId":"ai-infra","tags":["上下文优化","Token 省钱","Agent 插件","MCP"],"tagline":"把工具输出沙盒化，宣称省下 98% 上下文的 Agent 插件","features":["工具输出沙盒化（官方称减少 98%）","持久化 session 记忆","跨 17 个平台路由上下文（MCP + hooks）"],"install":"npm install -g context-mode","installSteps":["全局安装 CLI/MCP server","按平台接入 Claude Code / Codex / Cursor 等"],"installNote":"ELv2 非 OSI 开源，商用前阅读条款。","scenarios":["长会话上下文控制","大型仓库分析降本","多 Agent 上下文隔离"],"audience":"重度 AI 编码用户、Agent 开发者","highlight":"月增 7200+；上下文成本优化是 Agent 规模化的基础设施。","commercial":{"score":81,"tier":"A","dimensions":{"market":19,"monetization":16,"integration":18,"moat":12,"execution":16},"monetization":"Token 成本优化 SaaS/企业网关，按节省量或席位订阅","rationale":"降本效果可量化，企业采购理由充分；已有清晰接入路径。","risk":"许可证限制商用；模型厂商可能原生内置类似能力。"}},{"rank":13,"name":"Claude Plugins","fullName":"anthropics/claude-plugins-official","owner":"anthropics","url":"https://github.com/anthropics/claude-plugins-official","homepage":"https://code.claude.com/docs/en/plugins","language":"Python","license":"Apache-2.0","stars":42276,"periodStars":5112,"categoryId":"ai-agent","tags":["Claude Code","插件市场","MCP","Skill"],"tagline":"Anthropic 官方维护的 Claude Code 高质量插件目录","features":["官方精选插件目录（MCP/Skills）","Claude Code 内置插件系统一键安装","来源透明，适合团队选型"],"install":"/plugin install {plugin-name}@claude-plugins-official","installSteps":["Claude Code 中安装官方插件","或 /plugin > Discover 浏览"],"installNote":"第三方插件内容需自行评估信任。","scenarios":["扩展 Claude Code 能力","团队插件选型与治理","学习官方插件规范"],"audience":"Claude Code 用户、AI 工程团队","highlight":"月增 5100+；官方插件生态是 Claude Code 的分发入口。","commercial":{"score":66,"tier":"B","dimensions":{"market":18,"monetization":7,"integration":14,"moat":11,"execution":16},"monetization":"生态入口：企业插件定制、治理与咨询服务","rationale":"目录本身不盈利，但围绕企业插件生态有服务空间。","risk":"非直接商业产品；第三方插件质量不可控。"}},{"rank":14,"name":"Knowledge Work Plugins","fullName":"anthropics/knowledge-work-plugins","owner":"anthropics","url":"https://github.com/anthropics/knowledge-work-plugins","homepage":null,"language":"Python","license":"Apache-2.0","stars":30078,"periodStars":5654,"categoryId":"productivity","tags":["知识工作","Claude Cowork","行业插件","办公"],"tagline":"把 Claude 变成特定岗位/团队/公司的专家：Anthropic 官方知识工作插件集","features":["面向知识工作者的 Claude Cowork 插件","可定制工作方式、数据来源、关键流程与 slash commands","兼容 Claude Code"],"install":"Claude Cowork 插件市场安装","installSteps":["在 Cowork 插件市场选择岗位插件","按团队流程配置数据连接与命令"],"installNote":"官方开源示例，企业落地需结合自身流程与数据治理。","scenarios":["知识工作者日常 AI 工作流","企业岗位级 AI 助手","咨询/法务/运营流程自动化"],"audience":"知识工作者、企业 AI 落地团队","highlight":"月增 5600+；官方把『知识工作』做成可复用插件，B2B 落地想象空间大。","commercial":{"score":76,"tier":"A","dimensions":{"market":18,"monetization":15,"integration":14,"moat":12,"execution":17},"monetization":"企业 AI 落地实施/定制服务 + 行业插件包","rationale":"岗位级插件直接对应企业付费场景，实施与定制是稳定收入。","risk":"依赖 Anthropic 生态；纯插件难单独收费。"}},{"rank":15,"name":"AI Engineering from Scratch","fullName":"rohitg00/ai-engineering-from-scratch","owner":"rohitg00","url":"https://github.com/rohitg00/ai-engineering-from-scratch","homepage":"https://aiengineeringfromscratch.com","language":"Python","license":"MIT","stars":70838,"periodStars":16014,"categoryId":"education","tags":["AI 教育","课程","从零实现","Agent"],"tagline":"从零手写模型、检索与 Agent 运行时：542 节课的 AI 工程课程","features":["542 节课、20 个阶段，Python/TS/Rust/Julia 多语言","不止看课：实现模型内部、检索管线、Agent runtime 并测试","MIT 开源，网站/编码 Agent/本地代码三种学习方式"],"install":"npx skills add rohitg00/ai-engineering-from-scratch","installSteps":["用 skills 接入编码 Agent 辅助学习","或直接 clone 仓库本地跑 labs"],"installNote":"MIT；课程质量随更新变化，建议配合实战项目。","scenarios":["AI 工程师系统学习","企业内训与技术转型","Agent/LLM 原理与工程实践"],"audience":"AI 工程师、转型开发者、企业技术培训","highlight":"月增 1.6 万；『从零实现』路线切中 AI 工程师培训刚需。","commercial":{"score":87,"tier":"S","dimensions":{"market":20,"monetization":17,"integration":16,"moat":14,"execution":20},"monetization":"付费课程/训练营 + 企业内训 + 认证；内容平台合作","rationale":"AI 培训是确定性付费市场，542 节体系化内容具备课程产品化基础。","risk":"教育内容可复制，需持续更新与品牌运营。"}},{"rank":16,"name":"Agent Substrate","fullName":"agent-substrate/substrate","owner":"agent-substrate","url":"https://github.com/agent-substrate/substrate","homepage":null,"language":"Go","license":"Apache-2.0","stars":5456,"periodStars":3487,"categoryId":"ai-infra","tags":["Agent 运行时","Kubernetes","零信任","沙箱"],"tagline":"在 Kubernetes 上零信任地安全运行数百万个 Agent","features":["零信任、安全加固的 Agent 运行时","据称比标准容器密度高 10 倍","面向百万级 Agent 与工具沙箱"],"install":"go install ./cmd/kubectl-ate","installSteps":["按 Quickstart 部署到 Kubernetes 集群","使用 kubectl 插件管理 Agent 沙箱"],"installNote":"Apache-2.0；需要 K8s 运维能力，早期项目。","scenarios":["大规模 Agent 平台底座","多租户 Agent 隔离","Agent 安全合规运行"],"audience":"平台工程、云原生团队、Agent 基础设施厂商","highlight":"月增 3500；『百万 Agent 密度 + 零信任』是平台级基础设施命题。","commercial":{"score":72,"tier":"B","dimensions":{"market":16,"monetization":10,"integration":15,"moat":13,"execution":18},"monetization":"企业运行时支持/私有化部署 + 云厂商合作","rationale":"Agent 规模化运行的隔离与密度是刚需，适合绑定云/K8s 生态收费。","risk":"极早期（5 千星），商业化路径未验证；依赖 K8s 生态。"}},{"rank":17,"name":"Cursor Plugins","fullName":"cursor/plugins","owner":"cursor","url":"https://github.com/cursor/plugins","homepage":null,"language":"TypeScript","license":"未声明","stars":12504,"periodStars":4213,"categoryId":"ai-agent","tags":["Cursor","插件规范","Agent 工作流","PR 审查"],"tagline":"Cursor 官方插件规范与官方插件集合","features":["官方插件规范 + 源码（Teaching/Continual Learning/Team Kit/Thermos/Orchestrate 等）","覆盖团队工作流、代码审查、学习、云 Agent 编排","内置插件市场分发"],"install":"Cursor 插件市场搜索安装","installSteps":["在 Cursor 插件市场安装","或参考规范自建团队插件"],"installNote":"仓库未声明许可证。","scenarios":["团队 Agent 工作流标准化","PR 深度审查","云 Agent 编排"],"audience":"Cursor 用户、AI 工程团队","highlight":"月增 4200；官方插件生态开始成型。","commercial":{"score":66,"tier":"B","dimensions":{"market":16,"monetization":13,"integration":13,"moat":10,"execution":14},"monetization":"企业级工作流插件定制、团队培训","rationale":"插件生态带来服务与定制机会。","risk":"平台生态政策风险；插件难直接收费。"}},{"rank":18,"name":"GPUI Kit","fullName":"longbridge/gpui-kit","owner":"longbridge","url":"https://github.com/longbridge/gpui-kit","homepage":"http://gpui-kit.com","language":"Rust","license":"NOASSERTION","stars":18038,"periodStars":3500,"categoryId":"dev-tools","tags":["Rust","GUI","GPUI","桌面应用"],"tagline":"用 Rust + GPUI 构建高性能跨平台桌面应用的组件库","features":["生产级 UI 系统 + 数据/布局/编辑能力","基于 GPUI 的高性能桌面框架","crates.io 发布，文档与示例齐全"],"install":"cargo run -p example-dock","installSteps":["clone 仓库运行示例","在 crates.io 引入 gpui-kit 到你的项目"],"installNote":"许可证未声明，商用前确认授权。","scenarios":["Rust 桌面应用开发","高性能编辑器/工具软件","跨平台客户端"],"audience":"Rust 开发者、桌面客户端团队","highlight":"月增 3500；Rust 桌面 GUI 生态稀缺，Zed/GPUI 生态外溢。","commercial":{"score":70,"tier":"B","dimensions":{"market":15,"monetization":12,"integration":15,"moat":14,"execution":14},"monetization":"企业桌面应用开发服务、组件商业授权/支持","rationale":"Rust 桌面开发是蓝海，组件库可做技术支持与商业授权。","risk":"受众小众；许可证不明；GPUI 生态仍在演进。"}},{"rank":19,"name":"T3 Code","fullName":"pingdotgg/t3code","owner":"pingdotgg","url":"https://github.com/pingdotgg/t3code","homepage":"https://t3.codes","language":"TypeScript","license":"MIT","stars":28215,"periodStars":5326,"categoryId":"ai-agent","tags":["Agent 控制台","移动端","跨平台","Claude Code"],"tagline":"Agent Harness 控制面：用手机/浏览器/桌面控制你电脑上的编码 Agent","features":["控制本机的 Claude Code / Codex / Cursor / Grok Build / OpenCode 等","iOS/Android 移动 App + Web + Electron 桌面","复用你已有的订阅与配置"],"install":"curl -fsSL https://t3.codes/install.sh sh","installSteps":["安装 T3 Code（Windows 可用 winget/scoop）","连接本机已有 Agent 客户端"],"installNote":"MIT；需要本机已配置对应 Agent 客户端。","scenarios":["远程查看/控制编码 Agent","开发者移动办公","多 Agent 统一入口"],"audience":"开发者、Agent 重度用户","highlight":"月增 5300；『Agent 控制面』是 2026 新品类，移动端体验稀缺。","commercial":{"score":76,"tier":"A","dimensions":{"market":18,"monetization":14,"integration":16,"moat":13,"execution":15},"monetization":"开源控制面 + 云同步/团队协作订阅 + 企业版","rationale":"多 Agent 统一入口有网络效应，移动/远程场景有明确付费点。","risk":"依赖各家 Agent 客户端格式，兼容性维护成本高。"}},{"rank":20,"name":"Ghidra","fullName":"NationalSecurityAgency/ghidra","owner":"NationalSecurityAgency","url":"https://github.com/NationalSecurityAgency/ghidra","homepage":null,"language":"Java","license":"Apache-2.0","stars":90526,"periodStars":12003,"categoryId":"reversing","tags":["逆向框架","反编译","NSA 开源","安全"],"tagline":"NSA 开源的软件逆向工程框架","features":["反汇编 + 反编译，多平台目标","可扩展插件与脚本（Java/Python）","headless 批量分析"],"install":"下载 release zip + JDK 21","installSteps":["安装 64 位 JDK 21+","解压 Ghidra release，运行 ghidraRun / analyzeHeadless"],"installNote":"Apache-2.0；本机已装好 12.1.4 并接入 REA。","scenarios":["恶意样本分析","漏洞研究","CTF/固件分析"],"audience":"安全研究员、逆向工程师","highlight":"月增 1.2 万；REA 爆火带动逆向基础设施同步上涨。","commercial":{"score":68,"tier":"B","dimensions":{"market":20,"monetization":6,"integration":11,"moat":13,"execution":18},"monetization":"开源框架，商业化靠第三方支持/培训/托管分析服务","rationale":"行业标准工具，生态位稳固，服务型商业机会大。","risk":"本体非商业产品；变现依赖外部服务生态。"}}]},"catalog":[{"period":"week","label":"2026-W42","title":"GitHub 商业价值周榜","periodText":"2026-10-12 ~ 2026-10-18","edition":1,"generatedAt":"2026-10-18T11:30:00+08:00","count":10,"avgScore":71,"sCount":0,"aCount":4,"file":"editions/week-2026-W42.html"},{"period":"month","label":"2026-10","title":"GitHub 商业价值月榜","periodText":"2026-10-01 ~ 2026-10-31","edition":1,"generatedAt":"2026-10-18T12:08:50.949Z","count":20,"avgScore":79,"sCount":5,"aCount":9,"file":"editions/month-2026-10.html"},{"period":"year","label":"2026","title":"GitHub 商业价值年榜","periodText":"2026-01-01 ~ 2026-12-31","edition":1,"generatedAt":"2026-10-18T12:50:00+08:00","count":10,"avgScore":79,"sCount":2,"aCount":6,"file":"editions/year-2026.html"}],"cadence":"自动更新：每周一 09:00 周榜 · 每月 1 日 09:05 月榜 · 每年 1 月 1 日 09:10 年榜"};
+window.__EDITION__ = DATA;
+(function () {
+  const report = DATA.edition;
+  const cats = new Map(report.categories.map(c => [c.id, c]));
+  const tierMap = { S: "#34d399", A: "#60a5fa", B: "#fbbf24", C: "#94a3b8" };
+  const state = { q: "", cat: "all", tier: "all", sort: "rank", open: new Set() };
+  if (new URLSearchParams(location.search).get("open") === "1") report.items.forEach(i => state.open.add(i.fullName));
+  const $ = (s) => document.querySelector(s);
+  const grid = $("#grid");
+  const fmt = (n) => (n == null ? "-" : n >= 10000 ? (n / 1000).toFixed(1).replace(/\.0$/, "") + "k" : n.toLocaleString("en-US"));
+  const langColors = { TypeScript: "#3178c6", Rust: "#dea584", "C++": "#f34b7d", Python: "#3572A5", HTML: "#e34c26", Java: "#b07219", JavaScript: "#f1e05a", Go: "#00ADD8", Shell: "#89e051" };
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const periodWord = report.period === "week" ? "本周新增" : report.period === "month" ? "本月新增" : "年度新增";
+
+  // header
+  $("#periodPill").textContent = report.title + " · " + report.label;
+  $("#updatePill").textContent = "更新于 " + new Date(report.generatedAt).toLocaleDateString("zh-CN");
+  $("#pageTitle").textContent = report.title;
+  $("#introText").textContent = report.intro;
+  const items = report.items;
+  const totalStars = items.reduce((a, b) => a + (b.stars || 0), 0);
+  const totalPeriod = items.reduce((a, b) => a + (b.periodStars || 0), 0);
+  const sCount = items.filter(i => i.commercial?.tier === "S").length;
+  const aCount = items.filter(i => i.commercial?.tier === "A").length;
+  const avgScore = Math.round(items.reduce((a, b) => a + (b.commercial?.score || 0), 0) / items.length);
+  $("#stats").innerHTML = [
+    ["上榜项目", items.length, "个"],
+    ["总 Star", fmt(totalStars), ""],
+    [report.period === "year" ? "年度新榜" : periodWord + " Star", report.period === "year" ? "本年度" : fmt(totalPeriod), report.period === "year" ? "" : ""],
+    ["S / A 级", sCount + " / " + aCount, "个"],
+    ["平均商业分", avgScore, "分"],
+  ].map(([k, v, unit]) => `<div class="stat"><div class="k">${esc(k)}</div><div class="v">${esc(v)}<em>${esc(unit)}</em></div></div>`).join("");
+  $("#footSource").innerHTML = '数据来源：<a href="' + esc(report.source) + '" target="_blank" rel="noreferrer">' + esc(report.period === "year" ? "GitHub Search API" : "GitHub Trending") + '</a>';
+  $("#footCadence").textContent = DATA.cadence || "";
+
+  // tier chips
+  const tierChips = $("#tierChips");
+  const tierCounts = { all: items.length, S: sCount, A: aCount, B: items.filter(i => i.commercial?.tier === "B").length, C: items.filter(i => i.commercial?.tier === "C").length };
+  const mk = (label, val, cls) => { const el = document.createElement("div"); el.className = "chip " + (cls || ""); el.dataset.tier = val; el.textContent = label; return el; };
+  [["全部", "all", ""], ["S 级", "S", "tier-S"], ["A 级", "A", "tier-A"], ["B 级", "B", "tier-B"], ["C 级", "C", "tier-C"]].forEach(([label, val, cls]) => {
+    const el = mk(label + " " + (tierCounts[val] ?? 0), val, cls);
+    if (val === "all") el.classList.add("active");
+    tierChips.appendChild(el);
+  });
+  tierChips.addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    state.tier = chip.dataset.tier;
+    tierChips.querySelectorAll(".chip").forEach(x => x.classList.toggle("active", x === chip));
+    render();
+  });
+
+  // category chips
+  const chips = $("#chips");
+  const allChip = document.createElement("div");
+  allChip.className = "chip active"; allChip.dataset.cat = "all"; allChip.textContent = "全部分类";
+  chips.appendChild(allChip);
+  for (const c of report.categories) {
+    const n = items.filter(i => i.categoryId === c.id).length;
+    if (!n) continue;
+    const el = document.createElement("div");
+    el.className = "chip"; el.dataset.cat = c.id; el.innerHTML = c.emoji + " " + esc(c.name) + ' <span class="n">' + n + "</span>";
+    chips.appendChild(el);
+  }
+  chips.addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    state.cat = chip.dataset.cat;
+    chips.querySelectorAll(".chip").forEach(x => x.classList.toggle("active", x === chip));
+    render();
+  });
+
+  $("#q").addEventListener("input", (e) => { state.q = e.target.value.trim().toLowerCase(); render(); });
+  $("#sort").addEventListener("change", (e) => { state.sort = e.target.value; render(); });
+  $("#expandAll").addEventListener("click", () => {
+    const list = filtered();
+    const allOpen = list.every(i => state.open.has(i.fullName));
+    if (allOpen) state.open.clear(); else list.forEach(i => state.open.add(i.fullName));
+    render();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "/" && document.activeElement.tagName !== "INPUT") { e.preventDefault(); $("#q").focus(); }
+    if (e.key === "Escape") $("#q").blur();
+  });
+
+  function filtered() {
+    let list = items.filter(it => {
+      if (state.tier !== "all" && it.commercial?.tier !== state.tier) return false;
+      if (state.cat !== "all" && it.categoryId !== state.cat) return false;
+      if (!state.q) return true;
+      const hay = [it.name, it.fullName, it.tagline, it.audience, it.commercial?.monetization, it.commercial?.rationale, ...(it.tags || []), ...(it.features || []), ...(it.scenarios || [])].join(" ").toLowerCase();
+      return hay.includes(state.q);
+    });
+    const cmp = {
+      rank: (a, b) => a.rank - b.rank,
+      score: (a, b) => (b.commercial?.score || 0) - (a.commercial?.score || 0),
+      period: (a, b) => (b.periodStars || 0) - (a.periodStars || 0),
+      stars: (a, b) => (b.stars || 0) - (a.stars || 0),
+      name: (a, b) => a.name.localeCompare(b.name),
+    }[state.sort];
+    return list.sort(cmp);
+  }
+
+  function bar(label, val, color) {
+    return `<div class="bar"><span>${label}</span><span class="track"><span class="fill" style="width:${(val / 20) * 100}%;${color ? "background:" + color : ""}"></span></span><span>${val}</span></div>`;
+  }
+
+  function cardHTML(it) {
+    const cat = cats.get(it.categoryId) || { name: "其他", color: "#94a3b8", emoji: "📦" };
+    const lc = langColors[it.language] || "#94a3b8";
+    const c = it.commercial || {};
+    const open = state.open.has(it.fullName);
+    const tier = c.tier || "C";
+    return `
+    <article class="card tier-${tier} ${it.rank <= 3 ? "top" + it.rank : ""} ${open ? "open" : ""}" data-name="${esc(it.fullName)}" id="${esc(it.fullName)}">
+      <div class="glow"></div>
+      <div class="inner">
+        <div class="card-head">
+          <div class="rank">${it.rank ?? "—"}</div>
+          <div class="card-title">
+            <div class="name">${esc(it.name)}</div>
+            <div class="owner">${esc(it.fullName)}</div>
+          </div>
+          <span class="cat" style="--c:${cat.color}">${cat.emoji} ${esc(cat.name)}</span>
+        </div>
+        <p class="tagline">${esc(it.tagline)}</p>
+        <div class="meta">
+          <span class="tier-badge ${tier}">${tier} 级</span>
+          <span class="lang"><i style="background:${lc}"></i>${esc(it.language || "—")}</span>
+          <span class="stars">★ <b>${fmt(it.stars)}</b></span>
+          <span class="period-up">↑ ${fmt(it.periodStars || 0)} ${report.period === "year" ? "/ 年" : report.period === "week" ? "/ 周" : "/ 月"}</span>
+          <span>${esc(it.license || "未声明")}</span>
+        </div>
+        <div class="score-line"><span class="score">${c.score ?? "-"}</span><span class="label">商业价值分</span><span class="money">${esc(c.monetization || "")}</span></div>
+        <div class="tags">${(it.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join("")}</div>
+        <div class="actions">
+          <button class="btn toggle">${open ? "收起详情" : "展开详情"}</button>
+          <a class="btn gh" href="${esc(it.url)}" target="_blank" rel="noreferrer" title="打开 GitHub">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="details">
+        <div class="section"><h4>功能亮点</h4><ul>${(it.features || []).map(f => `<li>${esc(f)}</li>`).join("")}</ul></div>
+        <div class="section">
+          <h4>安装方式</h4>
+          <div class="install-box">
+            <div class="cmd"><span class="prompt">$</span><span class="cmd-text">${esc(it.install)}</span><button class="copy" data-cmd="${esc(it.install)}">复制</button></div>
+            ${(it.installSteps || []).length ? `<ol>${it.installSteps.map(s => `<li>${esc(s)}</li>`).join("")}</ol>` : ""}
+          </div>
+          ${it.installNote ? `<div class="install-note">⚠ ${esc(it.installNote)}</div>` : ""}
+        </div>
+        <div class="section"><h4>适用场景</h4><div class="scenarios">${(it.scenarios || []).map(s => `<span>${esc(s)}</span>`).join("")}</div></div>
+        <div class="section"><h4>适合人群</h4><div class="audience">${esc(it.audience)}</div></div>
+        <div class="section"><h4>上榜理由</h4><div class="highlight">${esc(it.highlight)}</div></div>
+        <div class="section">
+          <h4>商业价值分析</h4>
+          <div class="biz">
+            <div class="biz-head"><span class="big">${c.score ?? "-"}</span><span class="of">/ 100 · <span class="tier-badge ${tier}">${tier} 级</span></span></div>
+            <div class="bars">
+              ${bar("市场需求", c.dimensions?.market ?? 0)}
+              ${bar("变现路径", c.dimensions?.monetization ?? 0)}
+              ${bar("可集成性", c.dimensions?.integration ?? 0)}
+              ${bar("壁垒", c.dimensions?.moat ?? 0)}
+              ${bar("成熟度", c.dimensions?.execution ?? 0)}
+            </div>
+            <div class="biz-row"><b>变现方向</b><span>${esc(c.monetization || "-")}</span></div>
+            <div class="biz-row"><b>推荐理由</b><span>${esc(c.rationale || "-")}</span></div>
+            ${c.risk ? `<div class="biz-row risk"><b>风险提示</b><span>${esc(c.risk)}</span></div>` : ""}
+          </div>
+        </div>
+        <div class="links">
+          <a href="${esc(it.url)}" target="_blank" rel="noreferrer">GitHub 仓库 ↗</a>
+          ${it.homepage ? `<a href="${esc(it.homepage)}" target="_blank" rel="noreferrer">官网 ↗</a>` : ""}
+        </div>
+      </div>
+    </article>`;
+  }
+
+  function bind() {
+    grid.querySelectorAll(".card .toggle").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const card = btn.closest(".card"); const name = card.dataset.name;
+        if (state.open.has(name)) state.open.delete(name); else state.open.add(name);
+        render();
+      });
+    });
+    grid.querySelectorAll(".card .copy").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(btn.dataset.cmd);
+          btn.textContent = "已复制"; btn.classList.add("done");
+          setTimeout(() => { btn.textContent = "复制"; btn.classList.remove("done"); }, 1300);
+        } catch { toast("复制失败，请手动选择命令"); }
+      });
+    });
+  }
+
+  function render() {
+    const list = filtered();
+    $("#count").textContent = `显示 ${list.length} / ${items.length} 个项目`;
+    $("#expandAll").textContent = list.length && list.every(i => state.open.has(i.fullName)) ? "收起全部" : "展开全部";
+    grid.innerHTML = list.length ? list.map(cardHTML).join("") : `<div class="empty">没有匹配的项目，试试别的关键词、分级或分类。</div>`;
+    bind();
+  }
+
+  let toastTimer;
+  function toast(msg) {
+    const el = $("#toast"); el.textContent = msg; el.classList.add("show");
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove("show"), 1800);
+  }
+  render();
+})();
+</script>
+</body>
+</html>

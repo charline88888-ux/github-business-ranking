@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GitHub 商业价值年榜 · 2026 | GitHub 商业价值排行榜</title>
+<style>
+  :root {
+    --bg: #0b0f1a; --card: rgba(23,31,51,.72); --card-hover: rgba(30,41,66,.85);
+    --border: rgba(148,163,184,.16); --border-strong: rgba(148,163,184,.32);
+    --text: #e5e7eb; --muted: #94a3b8; --dim: #64748b;
+    --accent: #7c9cff; --accent-2: #c084fc;
+    --gold: #f6c453; --silver: #cbd5e1; --bronze: #d18b5c;
+    --s: #34d399; --a: #60a5fa; --b: #fbbf24; --c: #94a3b8;
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; min-height: 100vh; color: var(--text);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(124,156,255,.18), transparent 60%),
+      radial-gradient(1000px 500px at 95% 0%, rgba(192,132,252,.14), transparent 55%),
+      radial-gradient(900px 600px at 50% 110%, rgba(79,209,197,.08), transparent 60%),
+      var(--bg);
+    font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    line-height: 1.6;
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 28px 24px 80px; }
+  .back { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px; }
+  .back:hover { color: var(--text); border-color: var(--accent); }
+  header.hero { margin: 18px 0 24px; }
+  .hero-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border-strong); background: rgba(124,156,255,.08); color: #c7d2fe; font-size: 13px; font-weight: 600; letter-spacing: .4px; }
+  .pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+  .pill.score-pill { background: rgba(52,211,153,.08); border-color: rgba(52,211,153,.3); color: #a7f3d0; }
+  h1 { margin: 14px 0 10px; font-size: clamp(28px, 4vw, 44px); line-height: 1.15; letter-spacing: -.5px; font-weight: 800; background: linear-gradient(100deg, #f8fafc 10%, #a5b4fc 55%, #e9d5ff 90%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .sub { color: var(--muted); max-width: 900px; font-size: 15px; }
+  .stats { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+  .stat { flex: 1 1 150px; min-width: 140px; padding: 13px 16px; border-radius: 14px; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(30,41,66,.6), rgba(17,24,39,.55)); }
+  .stat .k { font-size: 12px; color: var(--dim); letter-spacing: .5px; text-transform: uppercase; }
+  .stat .v { font-size: 23px; font-weight: 750; margin-top: 2px; }
+  .stat .v em { font-style: normal; font-size: 13px; color: var(--muted); font-weight: 500; margin-left: 4px; }
+  .toolbar { position: sticky; top: 12px; z-index: 50; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 12px; margin: 24px 0 18px; border-radius: 16px; border: 1px solid var(--border); background: rgba(11,15,26,.85); backdrop-filter: blur(14px); box-shadow: 0 12px 32px rgba(0,0,0,.35); }
+  .search { flex: 1 1 240px; display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 11px; border: 1px solid var(--border-strong); background: rgba(15,23,42,.7); }
+  .search svg { flex: none; opacity: .6; }
+  .search input { flex: 1; background: transparent; border: 0; outline: 0; color: var(--text); font-size: 14px; font-family: inherit; }
+  .search input::placeholder { color: var(--dim); }
+  .search kbd { font-size: 11px; color: var(--dim); border: 1px solid var(--border); border-radius: 6px; padding: 1px 6px; font-family: inherit; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { cursor: pointer; user-select: none; font-size: 13px; font-weight: 600; padding: 7px 13px; border-radius: 999px; border: 1px solid var(--border); background: rgba(30,41,66,.45); color: var(--muted); transition: all .18s ease; }
+  .chip:hover { border-color: var(--border-strong); color: var(--text); }
+  .chip.active { color: #0b0f1a; background: linear-gradient(100deg, var(--accent), var(--accent-2)); border-color: transparent; }
+  .chip.tier-S.active { background: linear-gradient(100deg, #34d399, #10b981); }
+  .chip.tier-A.active { background: linear-gradient(100deg, #60a5fa, #3b82f6); }
+  .chip.tier-B.active { background: linear-gradient(100deg, #fbbf24, #f59e0b); }
+  .chip.tier-C.active { background: linear-gradient(100deg, #cbd5e1, #94a3b8); }
+  .chip .n { opacity: .75; font-size: 11px; margin-left: 4px; }
+  select { appearance: none; cursor: pointer; padding: 9px 34px 9px 13px; border-radius: 11px; border: 1px solid var(--border-strong); background: rgba(15,23,42,.7) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center; color: var(--text); font-size: 13px; font-family: inherit; }
+  .btn { cursor: pointer; font-size: 13px; font-weight: 650; padding: 9px 14px; border-radius: 11px; border: 1px solid var(--border-strong); background: rgba(30,41,66,.6); color: var(--text); transition: all .18s ease; font-family: inherit; }
+  .btn:hover { border-color: var(--accent); color: #dbeafe; }
+  .count { color: var(--dim); font-size: 13px; margin-left: auto; white-space: nowrap; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 18px; align-items: start; }
+  .card { position: relative; overflow: hidden; border-radius: var(--radius); border: 1px solid var(--border); background: var(--card); backdrop-filter: blur(10px); box-shadow: 0 6px 18px rgba(0,0,0,.22); transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease, background .22s ease; animation: rise .45s ease both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .card:hover { transform: translateY(-3px); border-color: var(--border-strong); background: var(--card-hover); box-shadow: 0 16px 36px rgba(0,0,0,.4); }
+  .card.tier-S { border-color: rgba(52,211,153,.35); }
+  .card.tier-A { border-color: rgba(96,165,250,.3); }
+  .card .glow { position: absolute; inset: -40% 40% auto -40%; height: 180px; background: radial-gradient(closest-side, rgba(124,156,255,.18), transparent); pointer-events: none; }
+  .card .inner { padding: 18px 18px 16px; }
+  .card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .rank { flex: none; width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; font-weight: 800; font-size: 16px; background: rgba(148,163,184,.12); color: var(--muted); border: 1px solid var(--border); }
+  .top1 .rank { background: linear-gradient(145deg, #f6c453, #b8860b); color: #1a1400; border-color: transparent; }
+  .top2 .rank { background: linear-gradient(145deg, #e2e8f0, #94a3b8); color: #0f172a; border-color: transparent; }
+  .top3 .rank { background: linear-gradient(145deg, #e0a06a, #a15f2b); color: #1a0d02; border-color: transparent; }
+  .card-title { min-width: 0; flex: 1; }
+  .card-title .name { font-size: 17px; font-weight: 750; letter-spacing: -.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card-title .owner { font-size: 12.5px; color: var(--dim); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cat { flex: none; font-size: 11.5px; font-weight: 700; padding: 4px 9px; border-radius: 999px; background: color-mix(in srgb, var(--c, var(--accent)) 16%, transparent); color: var(--c, var(--accent)); border: 1px solid color-mix(in srgb, var(--c, var(--accent)) 34%, transparent); white-space: nowrap; }
+  .tagline { color: #cbd5e1; font-size: 14.5px; min-height: 44px; margin: 2px 0 10px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; color: var(--dim); font-size: 12.5px; }
+  .lang { display: inline-flex; align-items: center; gap: 6px; }
+  .lang i { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); display: inline-block; }
+  .stars b { color: #f6c453; font-weight: 700; }
+  .period-up { color: #86efac; font-weight: 650; }
+  .tier-badge { display: inline-flex; align-items: center; gap: 5px; font-weight: 800; font-size: 12px; padding: 2px 8px; border-radius: 7px; }
+  .tier-badge.S { color: #052e16; background: linear-gradient(135deg, #6ee7b7, #34d399); }
+  .tier-badge.A { color: #052e16; background: linear-gradient(135deg, #93c5fd, #60a5fa); }
+  .tier-badge.B { color: #451a03; background: linear-gradient(135deg, #fde68a, #fbbf24); }
+  .tier-badge.C { color: #0f172a; background: linear-gradient(135deg, #e2e8f0, #94a3b8); }
+  .score-line { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 10px; border-radius: 10px; background: rgba(52,211,153,.06); border: 1px solid rgba(52,211,153,.16); font-size: 12.5px; color: var(--muted); }
+  .score-line .score { font-size: 19px; font-weight: 800; color: #a7f3d0; flex: none; }
+  .score-line .label { white-space: nowrap; flex: none; color: var(--muted); }
+  .score-line .money { color: #cbd5e1; min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .tag { font-size: 11.5px; color: var(--muted); padding: 3px 8px; border-radius: 7px; background: rgba(148,163,184,.1); border: 1px solid rgba(148,163,184,.12); }
+  .actions { display: flex; gap: 8px; margin-top: 14px; }
+  .actions .btn { flex: 1; text-align: center; }
+  .actions .gh { flex: none; width: 44px; display: grid; place-items: center; padding: 9px 0; }
+  .card .details { border-top: 1px solid var(--border); padding: 0 18px; max-height: 0; opacity: 0; overflow: hidden; transition: max-height .42s ease, opacity .3s ease, padding .3s ease; }
+  .card.open .details { max-height: 3200px; opacity: 1; padding: 16px 18px 20px; }
+  .section { margin-bottom: 16px; }
+  .section h4 { margin: 0 0 8px; font-size: 12.5px; letter-spacing: 1px; color: var(--dim); text-transform: uppercase; font-weight: 700; }
+  .section ul { margin: 0; padding-left: 18px; color: #cbd5e1; font-size: 13.5px; }
+  .section li { margin-bottom: 6px; }
+  .section li::marker { color: var(--accent); }
+  .install-box { border: 1px solid var(--border-strong); border-radius: 12px; background: rgba(2,6,23,.65); overflow: hidden; }
+  .install-box .cmd { display: flex; align-items: center; gap: 10px; padding: 11px 13px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px; color: #a7f3d0; white-space: pre-wrap; word-break: break-all; }
+  .install-box .cmd .prompt { color: #4fd1c5; flex: none; }
+  .copy { margin-left: auto; flex: none; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--muted); border-radius: 8px; padding: 4px 9px; font-size: 11.5px; font-family: inherit; transition: all .18s; }
+  .copy:hover { color: var(--text); border-color: var(--accent); }
+  .copy.done { color: #86efac; border-color: #22c55e; }
+  .install-box ol { margin: 0; padding: 10px 14px 12px 30px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--border); }
+  .install-box ol li { margin: 4px 0; }
+  .install-note { margin-top: 8px; font-size: 12.5px; color: #fca5a5; background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.18); border-radius: 9px; padding: 8px 11px; }
+  .scenarios { display: flex; flex-wrap: wrap; gap: 7px; }
+  .scenarios span { font-size: 12.5px; color: #c4b5fd; background: rgba(192,132,252,.1); border: 1px solid rgba(192,132,252,.22); border-radius: 8px; padding: 4px 9px; }
+  .audience { font-size: 13px; color: var(--muted); }
+  .highlight { font-size: 13px; color: #fde68a; background: rgba(246,196,83,.08); border-left: 3px solid var(--gold); border-radius: 0 9px 9px 0; padding: 8px 11px; }
+  .biz { border: 1px solid rgba(52,211,153,.25); border-radius: 12px; background: rgba(52,211,153,.05); padding: 12px 13px; }
+  .biz-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+  .biz-head .big { font-size: 30px; font-weight: 850; color: #a7f3d0; line-height: 1; }
+  .biz-head .of { color: var(--dim); font-size: 12px; }
+  .bars { display: grid; gap: 6px; margin: 10px 0 12px; }
+  .bar { display: grid; grid-template-columns: 74px 1fr 30px; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); }
+  .bar .track { height: 7px; border-radius: 99px; background: rgba(148,163,184,.15); overflow: hidden; }
+  .bar .fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #34d399, #60a5fa); }
+  .biz-row { font-size: 12.5px; color: #cbd5e1; margin: 7px 0; display: flex; gap: 8px; }
+  .biz-row b { color: #a7f3d0; white-space: nowrap; font-weight: 650; }
+  .biz-row.risk b { color: #fca5a5; }
+  .biz-row.risk { color: #fecaca; }
+  .links { display: flex; gap: 14px; margin-top: 6px; font-size: 12.5px; }
+  .links a { color: var(--accent); border-bottom: 1px dashed rgba(124,156,255,.4); }
+  .empty { grid-column: 1/-1; text-align: center; color: var(--dim); padding: 60px 20px; border: 1px dashed var(--border-strong); border-radius: var(--radius); }
+  footer { margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--border); color: var(--dim); font-size: 12.5px; display: flex; flex-wrap: wrap; gap: 8px 22px; justify-content: space-between; }
+  footer a { color: var(--muted); border-bottom: 1px dotted var(--border-strong); }
+  .toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 20px); background: #111827; border: 1px solid var(--border-strong); color: var(--text); padding: 10px 16px; border-radius: 11px; font-size: 13px; opacity: 0; pointer-events: none; transition: all .25s ease; z-index: 100; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  @media (max-width: 560px) {
+    .wrap { padding: 22px 14px 60px; }
+    .grid { grid-template-columns: 1fr; }
+    .toolbar { position: static; }
+    .count { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../index.html">← 返回排行榜首页</a>
+  <header class="hero">
+    <div class="hero-top">
+      <span class="pill"><span class="dot"></span>GITHUB 商业价值榜</span>
+      <span class="pill" id="periodPill">-</span>
+      <span class="pill score-pill" id="updatePill">-</span>
+    </div>
+    <h1 id="pageTitle">-</h1>
+    <p class="sub" id="introText"></p>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <div class="toolbar" id="toolbar">
+    <label class="search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="搜索项目、标签、功能、变现方向…" autocomplete="off" />
+      <kbd>/</kbd>
+    </label>
+    <div class="chips" id="tierChips"></div>
+    <div class="chips" id="chips"></div>
+    <select id="sort" title="排序方式">
+      <option value="rank">按榜单排名</option>
+      <option value="score">按商业价值分</option>
+      <option value="period">按本期新增 Star</option>
+      <option value="stars">按总 Star</option>
+      <option value="name">按名称</option>
+    </select>
+    <button class="btn" id="expandAll">展开全部</button>
+    <span class="count" id="count"></span>
+  </div>
+
+  <main class="grid" id="grid"></main>
+
+  <footer>
+    <span id="footSource">数据来源：GitHub</span>
+    <span id="footCadence"></span>
+  </footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const DATA = {"mode":"edition","edition":{"schemaVersion":3,"period":"year","label":"2026","periodText":"2026-01-01 ~ 2026-12-31","title":"GitHub 商业价值年榜","edition":1,"generatedAt":"2026-10-18T12:50:00+08:00","source":"https://api.github.com/search/repositories?q=created:2026-01-01..2026-12-31&sort=stars","intro":"2026 年度新榜：本年度新建、按总 star 排序的头部项目，再按商业价值五维评分筛选推荐。年榜关注的是『谁能长成平台/基础设施』，而不只是本周热度。","categories":[{"id":"ai-agent","name":"AI Agent 工具","emoji":"🤖","color":"#7c9cff"},{"id":"ai-infra","name":"AI 基础设施","emoji":"🏗️","color":"#60a5fa"},{"id":"reversing","name":"逆向与安全","emoji":"🔍","color":"#ff8f6b"},{"id":"creative","name":"AI 创作与设计","emoji":"🎨","color":"#c084fc"},{"id":"media","name":"内容生产","emoji":"🎬","color":"#4fd1c5"},{"id":"gaming","name":"游戏与移植","emoji":"🎮","color":"#f6c453"},{"id":"productivity","name":"个人效率","emoji":"🚀","color":"#86efac"},{"id":"vertical","name":"垂直行业方案","emoji":"🏢","color":"#f472b6"}],"items":[{"rank":1,"name":"Paperclip","fullName":"paperclipai/paperclip","owner":"paperclipai","url":"https://github.com/paperclipai/paperclip","homepage":"https://paperclip.ing","language":"TypeScript","license":"MIT","stars":103865,"periodStars":0,"categoryId":"ai-agent","tags":["Agent 编排","企业平台","开源","治理"],"tagline":"团队级 AI Agent 编排平台：把一群 Agent 当成一个部门来管理","features":["Node.js 服务 + React 管理界面，可视化编排团队中的多个 Agent","内置权限与治理能力，适合企业内规模化使用","开源可自托管，同时提供 Paperclip Cloud 托管候补"],"install":"npx paperclipai@latest onboard --yes","installSteps":["运行 onboard 完成初始化","按 Quickstart 启动服务与 Web UI，接入模型与 Agent"],"installNote":"MIT；自托管需自行运维。","scenarios":["企业内部多 Agent 团队协作与治理","多 Agent 工作流编排与审计","Agent 管理入口的平台化"],"audience":"AI 工程团队、企业平台团队","highlight":"年度新建项目中的商业价值标杆：10.4 万星 + Cloud 收费路径，最接近『Agent 时代的企业软件』。","commercial":{"score":92,"tier":"S","dimensions":{"market":20,"monetization":20,"integration":18,"moat":15,"execution":19},"monetization":"Cloud 托管订阅 + 企业治理/SSO/审计增值，按席位收费","rationale":"企业需要可控、可审计的 Agent 团队，而不是单个 Agent。平台型定位 + 已有 Cloud waitlist，长期价值最大。","risk":"与模型厂商/大厂 Agent 平台正面竞争；自托管运维成本高。"}},{"rank":2,"name":"ECC","fullName":"affaan-m/ECC","owner":"affaan-m","url":"https://github.com/affaan-m/ECC","homepage":"https://ecc.tools","language":"JavaScript","license":"MIT","stars":282953,"periodStars":0,"categoryId":"ai-agent","tags":["Agent 工程化","Harness","技能","记忆"],"tagline":"Agent Harness 性能优化系统：技能、本能、记忆、安全与研究式开发","features":["覆盖 Claude Code / Codex / Cursor 等 harness 的统一优化层","技能 + 记忆 + 安全 + research-first 工作流的组合","npx ecc-universal setup 一条命令接入"],"install":"npx ecc-universal@2.2.3 setup","installSteps":["只从官方渠道安装（GitHub / npm / GitHub App / plugin）","运行 setup 选择目标 Agent 与能力"],"installNote":"谨防仿冒包，仅使用官方渠道。","scenarios":["团队统一 Agent 能力基线","提升交付质量与稳定性","降低多 Agent 协作返工"],"audience":"AI 工程团队、Agent 平台开发者","highlight":"年度 Agent 工程化旗舰：28.3 万星，生态心智已成。","commercial":{"score":90,"tier":"S","dimensions":{"market":20,"monetization":16,"integration":18,"moat":14,"execution":19},"monetization":"企业版/托管、培训认证、生态插件分发","rationale":"Agent 工程化是企业 AI 落地主战场，规模效应明显，服务与合规可收费。","risk":"开源自复制性强；依赖各 harness 生态演进。"}},{"rank":3,"name":"Graphify","fullName":"Graphify-Labs/graphify","owner":"Graphify-Labs","url":"https://github.com/Graphify-Labs/graphify","homepage":"https://www.graphify.com","language":"Python","license":"Apache-2.0","stars":128032,"periodStars":0,"categoryId":"ai-infra","tags":["知识图谱","代码理解","RAG","Agent 记忆"],"tagline":"把任何代码库（含文档/SQL/配置/PDF）变成可查询的知识图谱","features":["本地确定性 AST 解析，每条边都有解释","一个 /graphify 技能接入 Claude Code / Cursor / Codex / Gemini CLI","官方称可降低 Agent 80% token 消耗；Graphify Cloud 提供常驻记忆"],"install":"uv tool install graphifyy","installSteps":["用 uv 或 pipx 安装 CLI","在 Agent 中触发 /graphify 索引代码库","需要团队共享时接入 Graphify Cloud"],"installNote":"Apache-2.0；大仓库索引耗时，建议先在小仓库验证。","scenarios":["大型代码库理解与精准检索","跨文档/数据库的知识问答","降低 Agent 上下文与 token 成本"],"audience":"平台工程、代码智能团队、AI 代码助手厂商","highlight":"12.8 万星年度新星；代码知识图谱 + 云记忆，是 Agent 的『长期记忆基础设施』。","commercial":{"score":82,"tier":"A","dimensions":{"market":18,"monetization":16,"integration":18,"moat":14,"execution":16},"monetization":"开源自托管引流 → Graphify Cloud 常驻记忆订阅；企业私有化部署与代码知识图谱服务","rationale":"代码理解是 Agent 的高频刚需，知识图谱侧有技术壁垒，Cloud 收费模式直接。","risk":"与 RAG/代码索引厂商竞争；大仓库性能与解析准确性是门槛。"}},{"rank":4,"name":"OpenDesign","fullName":"nexu-io/open-design","owner":"nexu-io","url":"https://github.com/nexu-io/open-design","homepage":"https://open-design.ai","language":"TypeScript","license":"Apache-2.0","stars":102072,"periodStars":0,"categoryId":"creative","tags":["AI 设计","协作工作区","本地优先","BYOK"],"tagline":"第一个协作式 AI 设计 Agent 工作区：本地优先、开源","features":["团队 + AI Agent 协作产出原型、网站、App、仪表盘、演示、图像、视频","本地优先、开源、BYOK，多模型可选（含 GPT-6 / DeepSeek / GLM / MiMo）","支持 Codex、Claude Code、DSH 等 Agent 接入；已有 Go 付费计划"],"install":"curl -fsSL https://open-design.ai/install.sh sh -s","installSteps":["安装桌面应用","配置团队与模型（BYOK），开始协作设计"],"installNote":"Apache-2.0；本地优先意味着数据留在自己设备。","scenarios":["设计团队 AI 协作与评审","原型/落地页/应用界面快速产出","设计系统与品牌资产管理"],"audience":"设计团队、产品团队、创意工作室","highlight":"10.2 万星；本地优先 + 团队协作 + 多 Agent 接入，差异化卡位『AI 设计工作区』。","commercial":{"score":80,"tier":"A","dimensions":{"market":18,"monetization":17,"integration":15,"moat":14,"execution":16},"monetization":"Go 订阅/Design Plan 额度 + 企业版；设计模板与素材市场","rationale":"设计团队愿意为协作与效率付费，已有付费计划验证；本地优先对企业数据合规友好。","risk":"与 Figma/Canva 等成熟工具竞争；素材与生态是短板。"}},{"rank":5,"name":"gstack","fullName":"garrytan/gstack","owner":"garrytan","url":"https://github.com/garrytan/gstack","homepage":null,"language":"TypeScript","license":"MIT","stars":136810,"periodStars":0,"categoryId":"ai-agent","tags":["Claude Code","角色化 Agent","创业工具","工作流"],"tagline":"Garry Tan 的 Claude Code 配置：23 个有主见的工具扮演 CEO/设计师/工程经理/发布经理/QA","features":["23 个角色化工具，覆盖产品、设计、工程、发布、QA","clone 即用的 Agent 工作流，模拟『一个人像二十人团队』","来自 YC 总裁 Garry Tan 的实战配置"],"install":"git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/gstack","installSteps":["clone 仓库到本地","按 README 完成 build/安装，在 Claude Code 中调用"],"installNote":"MIT；属于个人/团队工作流模板，非托管产品。","scenarios":["单人创业公司的杠杆工具","小团队角色化 Agent 工作流","从想法到发布的完整流程"],"audience":"独立开发者、创业者、小团队","highlight":"13.7 万星；名人效应 + 『一人公司』叙事，是年度 Agent 工作流模板代表。","commercial":{"score":79,"tier":"A","dimensions":{"market":17,"monetization":18,"integration":15,"moat":13,"execution":16},"monetization":"付费课程/社区/咨询；与创业工具链（模板、托管工作流）集成","rationale":"模板本身开源，但背后的方法论与品牌可变现；对创业人群的付费转化潜力高。","risk":"强个人品牌依赖，可复制性高。"}},{"rank":6,"name":"DeepSeek Harness","fullName":"deepseek-ai/deepseek-harness","owner":"deepseek-ai","url":"https://github.com/deepseek-ai/deepseek-harness","homepage":"https://deepseek.com/harness","language":"TypeScript","license":"MIT","stars":252725,"periodStars":0,"categoryId":"ai-infra","tags":["Agent Harness","插件架构","开源","DSH"],"tagline":"DeepSeek 开源 Agent Harness：一切皆插件","features":["基于 Cordis 的『一切皆插件』架构","内置完整工具集、会话持久化、子 Agent、MCP、工作流","npx 一条命令启动 Web 端，可二次开发插件"],"install":"npx @deepseek-ai/dsh web","installSteps":["用 npx 或 npm 全局安装","按文档接入模型与插件生态"],"installNote":"开发者预览阶段，API 可能快速变化。","scenarios":["企业自建 Agent 平台","插件生态开发与分发","Agent 研究与实验"],"audience":"Agent 平台团队、插件开发者","highlight":"25.3 万星；插件化架构 + 模型厂商生态，是 Agent 基础设施的长期变量。","commercial":{"score":78,"tier":"A","dimensions":{"market":18,"monetization":13,"integration":16,"moat":14,"execution":17},"monetization":"企业支持/托管 + 插件市场抽成；云版 DSH 服务","rationale":"Harness 是 Agent 的『操作系统』，插件生态一旦形成就有平台级商业价值。","risk":"开发者预览阶段；与 Claude Code/Codex 等成熟 harness 竞争。"}},{"rank":7,"name":"Skills for Real Engineers","fullName":"mattpocock/skills","owner":"mattpocock","url":"https://github.com/mattpocock/skills","homepage":"https://aihero.dev/skills","language":"Shell","license":"MIT","stars":295640,"periodStars":0,"categoryId":"ai-agent","tags":["Agent 技能","工程实践","可控工作流"],"tagline":"面向真实工程的 Agent 技能库：小而可组合，拒绝 vibe coding","features":["小而可组合、可修改的工程技能集合","适用于任意模型与 Agent 客户端","npx skills 一条命令安装"],"install":"npx skills@latest add mattpocock/skills","installSteps":["用 skills CLI 安装技能","在 Agent 中按需启用/组合技能"],"installNote":"MIT；技能效果取决于所选模型与项目上下文。","scenarios":["提升 Agent 真实工程交付质量","团队工程技能标准化","替代重型流程框架的轻量方案"],"audience":"工程师、AI 工程团队、技术负责人","highlight":"29.6 万星；『反 vibe coding』叙事 + 作者影响力，是年度技能类项目第一名。","commercial":{"score":76,"tier":"A","dimensions":{"market":18,"monetization":15,"integration":16,"moat":11,"execution":16},"monetization":"付费课程/社区（aihero.dev）+ 企业培训；技能市场分成","rationale":"技能本身免费，但方法论与教学内容可付费，作者已有商业载体。","risk":"内容型项目，壁垒在个人品牌；技能易被复制。"}},{"rank":8,"name":"Caveman","fullName":"JuliusBrussee/caveman","owner":"JuliusBrussee","url":"https://github.com/JuliusBrussee/caveman","homepage":"https://docs.caveman.so/caveman","language":"Go","license":"Apache-2.0","stars":113373,"periodStars":0,"categoryId":"ai-infra","tags":["Token 优化","成本控制","Agent 技能"],"tagline":"少说废话的 Agent 技能：用『穴居人语』省 65% token","features":["技能 + 代理双形态，压缩 Agent 输出与读取的 token","代码保持精确、答案正确率不降（实测 18/18）","实测省 33% 输入 token、成本降 54%"],"install":"npx skills add JuliusBrussee/caveman -g","installSteps":["安装技能或使用其代理","在 Agent 会话中启用"],"installNote":"Apache-2.0；省钱效果取决于会话类型。","scenarios":["降低 Agent 使用成本","长会话 token 控制","输出精简与成本核算"],"audience":"成本敏感的 Agent 用户、重度使用者","highlight":"11.3 万星；token 省钱是硬需求，病毒式传播的年度黑马。","commercial":{"score":75,"tier":"A","dimensions":{"market":18,"monetization":15,"integration":15,"moat":11,"execution":16},"monetization":"付费代理/云服务（docs.caveman.so）+ 企业成本优化方案","rationale":"成本优化是最容易证明 ROI 的付费点，已有付费载体。","risk":"梗驱动热度可能退潮；模型厂商原生精简能力会削弱价值。"}},{"rank":9,"name":"Ponytail","fullName":"DietrichGebert/ponytail","owner":"DietrichGebert","url":"https://github.com/DietrichGebert/ponytail","homepage":"https://ponytail.dev","language":"JavaScript","license":"MIT","stars":166600,"periodStars":0,"categoryId":"ai-agent","tags":["Agent 技能","YAGNI","工程效能"],"tagline":"让 AI Agent 像最懒的资深工程师一样思考：最好的代码是不写的代码","features":["YAGNI 导向的 Agent 技能，减少过度工程","实测 -53% 代码、-41% 时间、-26% 成本、-45% token","风险逻辑带测试比例 98%（对照组 68%）"],"install":"按 README 安装技能 / Claude Code 插件","installSteps":["按 README 安装为技能或插件","在工程任务中启用"],"installNote":"MIT；效果依赖团队工程文化与项目类型。","scenarios":["减少 AI 过度工程与代码膨胀","控制交付成本与时间","提升代码质量与测试覆盖"],"audience":"工程团队、Tech Lead、独立开发者","highlight":"16.7 万星；『反过度工程』情绪共鸣，年度工程效能代表项目。","commercial":{"score":72,"tier":"B","dimensions":{"market":17,"monetization":12,"integration":15,"moat":11,"execution":17},"monetization":"工程效能咨询/培训 + 企业技能订阅","rationale":"效果可量化（代码/成本/时间），适合包装成企业效能服务。","risk":"单点技能壁垒低；效果难以标准化归因。"}},{"rank":10,"name":"Agent Reach","fullName":"Panniantong/Agent-Reach","owner":"Panniantong","url":"https://github.com/Panniantong/Agent-Reach","homepage":null,"language":"Python","license":"MIT","stars":98903,"periodStars":0,"categoryId":"ai-infra","tags":["互联网接入","多平台","CLI","Agent 工具"],"tagline":"给 AI Agent 装上互联网眼睛：一个 CLI 读取/搜索多平台内容，零 API 费","features":["覆盖 Twitter、Reddit、YouTube、GitHub、B站、小红书等平台","统一 CLI 接入，零 API 费用","自动选择接入方式，屏蔽平台接口变动"],"install":"按 README 安装（Python / CLI）","installSteps":["安装 CLI 与依赖","配置平台凭据或代理，接入 Agent 使用"],"installNote":"抓取式接入有平台合规与封禁风险，商用前请评估。","scenarios":["Agent 互联网检索与内容获取","舆情/内容研究","跨平台数据采集"],"audience":"Agent 开发者、内容/营销团队、研究者","highlight":"9.9 万星；『Agent 需要眼睛』刚需 + 零 API 费，流量型项目代表。","commercial":{"score":70,"tier":"B","dimensions":{"market":16,"monetization":12,"integration":16,"moat":10,"execution":16},"monetization":"赞助/企业数据服务 + 商业 API 版本；与浏览器自动化厂商互补","rationale":"网站数据接入需求广，适合做企业数据服务或 API 转售。","risk":"平台封禁与合规风险高；稳定性依赖抓取策略。"}}]},"catalog":[{"period":"week","label":"2026-W42","title":"GitHub 商业价值周榜","periodText":"2026-10-12 ~ 2026-10-18","edition":1,"generatedAt":"2026-10-18T11:30:00+08:00","count":10,"avgScore":71,"sCount":0,"aCount":4,"file":"editions/week-2026-W42.html"},{"period":"month","label":"2026-10","title":"GitHub 商业价值月榜","periodText":"2026-10-01 ~ 2026-10-31","edition":1,"generatedAt":"2026-10-18T12:08:50.949Z","count":20,"avgScore":79,"sCount":5,"aCount":9,"file":"editions/month-2026-10.html"},{"period":"year","label":"2026","title":"GitHub 商业价值年榜","periodText":"2026-01-01 ~ 2026-12-31","edition":1,"generatedAt":"2026-10-18T12:50:00+08:00","count":10,"avgScore":79,"sCount":2,"aCount":6,"file":"editions/year-2026.html"}],"cadence":"自动更新：每周一 09:00 周榜 · 每月 1 日 09:05 月榜 · 每年 1 月 1 日 09:10 年榜"};
+window.__EDITION__ = DATA;
+(function () {
+  const report = DATA.edition;
+  const cats = new Map(report.categories.map(c => [c.id, c]));
+  const tierMap = { S: "#34d399", A: "#60a5fa", B: "#fbbf24", C: "#94a3b8" };
+  const state = { q: "", cat: "all", tier: "all", sort: "rank", open: new Set() };
+  if (new URLSearchParams(location.search).get("open") === "1") report.items.forEach(i => state.open.add(i.fullName));
+  const $ = (s) => document.querySelector(s);
+  const grid = $("#grid");
+  const fmt = (n) => (n == null ? "-" : n >= 10000 ? (n / 1000).toFixed(1).replace(/\.0$/, "") + "k" : n.toLocaleString("en-US"));
+  const langColors = { TypeScript: "#3178c6", Rust: "#dea584", "C++": "#f34b7d", Python: "#3572A5", HTML: "#e34c26", Java: "#b07219", JavaScript: "#f1e05a", Go: "#00ADD8", Shell: "#89e051" };
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const periodWord = report.period === "week" ? "本周新增" : report.period === "month" ? "本月新增" : "年度新增";
+
+  // header
+  $("#periodPill").textContent = report.title + " · " + report.label;
+  $("#updatePill").textContent = "更新于 " + new Date(report.generatedAt).toLocaleDateString("zh-CN");
+  $("#pageTitle").textContent = report.title;
+  $("#introText").textContent = report.intro;
+  const items = report.items;
+  const totalStars = items.reduce((a, b) => a + (b.stars || 0), 0);
+  const totalPeriod = items.reduce((a, b) => a + (b.periodStars || 0), 0);
+  const sCount = items.filter(i => i.commercial?.tier === "S").length;
+  const aCount = items.filter(i => i.commercial?.tier === "A").length;
+  const avgScore = Math.round(items.reduce((a, b) => a + (b.commercial?.score || 0), 0) / items.length);
+  $("#stats").innerHTML = [
+    ["上榜项目", items.length, "个"],
+    ["总 Star", fmt(totalStars), ""],
+    [report.period === "year" ? "年度新榜" : periodWord + " Star", report.period === "year" ? "本年度" : fmt(totalPeriod), report.period === "year" ? "" : ""],
+    ["S / A 级", sCount + " / " + aCount, "个"],
+    ["平均商业分", avgScore, "分"],
+  ].map(([k, v, unit]) => `<div class="stat"><div class="k">${esc(k)}</div><div class="v">${esc(v)}<em>${esc(unit)}</em></div></div>`).join("");
+  $("#footSource").innerHTML = '数据来源：<a href="' + esc(report.source) + '" target="_blank" rel="noreferrer">' + esc(report.period === "year" ? "GitHub Search API" : "GitHub Trending") + '</a>';
+  $("#footCadence").textContent = DATA.cadence || "";
+
+  // tier chips
+  const tierChips = $("#tierChips");
+  const tierCounts = { all: items.length, S: sCount, A: aCount, B: items.filter(i => i.commercial?.tier === "B").length, C: items.filter(i => i.commercial?.tier === "C").length };
+  const mk = (label, val, cls) => { const el = document.createElement("div"); el.className = "chip " + (cls || ""); el.dataset.tier = val; el.textContent = label; return el; };
+  [["全部", "all", ""], ["S 级", "S", "tier-S"], ["A 级", "A", "tier-A"], ["B 级", "B", "tier-B"], ["C 级", "C", "tier-C"]].forEach(([label, val, cls]) => {
+    const el = mk(label + " " + (tierCounts[val] ?? 0), val, cls);
+    if (val === "all") el.classList.add("active");
+    tierChips.appendChild(el);
+  });
+  tierChips.addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    state.tier = chip.dataset.tier;
+    tierChips.querySelectorAll(".chip").forEach(x => x.classList.toggle("active", x === chip));
+    render();
+  });
+
+  // category chips
+  const chips = $("#chips");
+  const allChip = document.createElement("div");
+  allChip.className = "chip active"; allChip.dataset.cat = "all"; allChip.textContent = "全部分类";
+  chips.appendChild(allChip);
+  for (const c of report.categories) {
+    const n = items.filter(i => i.categoryId === c.id).length;
+    if (!n) continue;
+    const el = document.createElement("div");
+    el.className = "chip"; el.dataset.cat = c.id; el.innerHTML = c.emoji + " " + esc(c.name) + ' <span class="n">' + n + "</span>";
+    chips.appendChild(el);
+  }
+  chips.addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    state.cat = chip.dataset.cat;
+    chips.querySelectorAll(".chip").forEach(x => x.classList.toggle("active", x === chip));
+    render();
+  });
+
+  $("#q").addEventListener("input", (e) => { state.q = e.target.value.trim().toLowerCase(); render(); });
+  $("#sort").addEventListener("change", (e) => { state.sort = e.target.value; render(); });
+  $("#expandAll").addEventListener("click", () => {
+    const list = filtered();
+    const allOpen = list.every(i => state.open.has(i.fullName));
+    if (allOpen) state.open.clear(); else list.forEach(i => state.open.add(i.fullName));
+    render();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "/" && document.activeElement.tagName !== "INPUT") { e.preventDefault(); $("#q").focus(); }
+    if (e.key === "Escape") $("#q").blur();
+  });
+
+  function filtered() {
+    let list = items.filter(it => {
+      if (state.tier !== "all" && it.commercial?.tier !== state.tier) return false;
+      if (state.cat !== "all" && it.categoryId !== state.cat) return false;
+      if (!state.q) return true;
+      const hay = [it.name, it.fullName, it.tagline, it.audience, it.commercial?.monetization, it.commercial?.rationale, ...(it.tags || []), ...(it.features || []), ...(it.scenarios || [])].join(" ").toLowerCase();
+      return hay.includes(state.q);
+    });
+    const cmp = {
+      rank: (a, b) => a.rank - b.rank,
+      score: (a, b) => (b.commercial?.score || 0) - (a.commercial?.score || 0),
+      period: (a, b) => (b.periodStars || 0) - (a.periodStars || 0),
+      stars: (a, b) => (b.stars || 0) - (a.stars || 0),
+      name: (a, b) => a.name.localeCompare(b.name),
+    }[state.sort];
+    return list.sort(cmp);
+  }
+
+  function bar(label, val, color) {
+    return `<div class="bar"><span>${label}</span><span class="track"><span class="fill" style="width:${(val / 20) * 100}%;${color ? "background:" + color : ""}"></span></span><span>${val}</span></div>`;
+  }
+
+  function cardHTML(it) {
+    const cat = cats.get(it.categoryId) || { name: "其他", color: "#94a3b8", emoji: "📦" };
+    const lc = langColors[it.language] || "#94a3b8";
+    const c = it.commercial || {};
+    const open = state.open.has(it.fullName);
+    const tier = c.tier || "C";
+    return `
+    <article class="card tier-${tier} ${it.rank <= 3 ? "top" + it.rank : ""} ${open ? "open" : ""}" data-name="${esc(it.fullName)}" id="${esc(it.fullName)}">
+      <div class="glow"></div>
+      <div class="inner">
+        <div class="card-head">
+          <div class="rank">${it.rank ?? "—"}</div>
+          <div class="card-title">
+            <div class="name">${esc(it.name)}</div>
+            <div class="owner">${esc(it.fullName)}</div>
+          </div>
+          <span class="cat" style="--c:${cat.color}">${cat.emoji} ${esc(cat.name)}</span>
+        </div>
+        <p class="tagline">${esc(it.tagline)}</p>
+        <div class="meta">
+          <span class="tier-badge ${tier}">${tier} 级</span>
+          <span class="lang"><i style="background:${lc}"></i>${esc(it.language || "—")}</span>
+          <span class="stars">★ <b>${fmt(it.stars)}</b></span>
+          <span class="period-up">↑ ${fmt(it.periodStars || 0)} ${report.period === "year" ? "/ 年" : report.period === "week" ? "/ 周" : "/ 月"}</span>
+          <span>${esc(it.license || "未声明")}</span>
+        </div>
+        <div class="score-line"><span class="score">${c.score ?? "-"}</span><span class="label">商业价值分</span><span class="money">${esc(c.monetization || "")}</span></div>
+        <div class="tags">${(it.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join("")}</div>
+        <div class="actions">
+          <button class="btn toggle">${open ? "收起详情" : "展开详情"}</button>
+          <a class="btn gh" href="${esc(it.url)}" target="_blank" rel="noreferrer" title="打开 GitHub">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="details">
+        <div class="section"><h4>功能亮点</h4><ul>${(it.features || []).map(f => `<li>${esc(f)}</li>`).join("")}</ul></div>
+        <div class="section">
+          <h4>安装方式</h4>
+          <div class="install-box">
+            <div class="cmd"><span class="prompt">$</span><span class="cmd-text">${esc(it.install)}</span><button class="copy" data-cmd="${esc(it.install)}">复制</button></div>
+            ${(it.installSteps || []).length ? `<ol>${it.installSteps.map(s => `<li>${esc(s)}</li>`).join("")}</ol>` : ""}
+          </div>
+          ${it.installNote ? `<div class="install-note">⚠ ${esc(it.installNote)}</div>` : ""}
+        </div>
+        <div class="section"><h4>适用场景</h4><div class="scenarios">${(it.scenarios || []).map(s => `<span>${esc(s)}</span>`).join("")}</div></div>
+        <div class="section"><h4>适合人群</h4><div class="audience">${esc(it.audience)}</div></div>
+        <div class="section"><h4>上榜理由</h4><div class="highlight">${esc(it.highlight)}</div></div>
+        <div class="section">
+          <h4>商业价值分析</h4>
+          <div class="biz">
+            <div class="biz-head"><span class="big">${c.score ?? "-"}</span><span class="of">/ 100 · <span class="tier-badge ${tier}">${tier} 级</span></span></div>
+            <div class="bars">
+              ${bar("市场需求", c.dimensions?.market ?? 0)}
+              ${bar("变现路径", c.dimensions?.monetization ?? 0)}
+              ${bar("可集成性", c.dimensions?.integration ?? 0)}
+              ${bar("壁垒", c.dimensions?.moat ?? 0)}
+              ${bar("成熟度", c.dimensions?.execution ?? 0)}
+            </div>
+            <div class="biz-row"><b>变现方向</b><span>${esc(c.monetization || "-")}</span></div>
+            <div class="biz-row"><b>推荐理由</b><span>${esc(c.rationale || "-")}</span></div>
+            ${c.risk ? `<div class="biz-row risk"><b>风险提示</b><span>${esc(c.risk)}</span></div>` : ""}
+          </div>
+        </div>
+        <div class="links">
+          <a href="${esc(it.url)}" target="_blank" rel="noreferrer">GitHub 仓库 ↗</a>
+          ${it.homepage ? `<a href="${esc(it.homepage)}" target="_blank" rel="noreferrer">官网 ↗</a>` : ""}
+        </div>
+      </div>
+    </article>`;
+  }
+
+  function bind() {
+    grid.querySelectorAll(".card .toggle").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const card = btn.closest(".card"); const name = card.dataset.name;
+        if (state.open.has(name)) state.open.delete(name); else state.open.add(name);
+        render();
+      });
+    });
+    grid.querySelectorAll(".card .copy").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(btn.dataset.cmd);
+          btn.textContent = "已复制"; btn.classList.add("done");
+          setTimeout(() => { btn.textContent = "复制"; btn.classList.remove("done"); }, 1300);
+        } catch { toast("复制失败，请手动选择命令"); }
+      });
+    });
+  }
+
+  function render() {
+    const list = filtered();
+    $("#count").textContent = `显示 ${list.length} / ${items.length} 个项目`;
+    $("#expandAll").textContent = list.length && list.every(i => state.open.has(i.fullName)) ? "收起全部" : "展开全部";
+    grid.innerHTML = list.length ? list.map(cardHTML).join("") : `<div class="empty">没有匹配的项目，试试别的关键词、分级或分类。</div>`;
+    bind();
+  }
+
+  let toastTimer;
+  function toast(msg) {
+    const el = $("#toast"); el.textContent = msg; el.classList.add("show");
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove("show"), 1800);
+  }
+  render();
+})();
+</script>
+</body>
+</html>
