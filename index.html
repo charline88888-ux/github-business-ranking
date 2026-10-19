@@ -94,7 +94,7 @@
   <h2 class="section-title">商业价值 Top <small>跨榜单，按商业价值分</small></h2>
   <div class="picks" id="picks"></div>
 
-  <h2 class="section-title" id="includedTitle" style="display:none">📥 用户收录 <small>关键词搜索 → 商业价值评估 → 收录入榜（长期保留）</small></h2>
+  <h2 class="section-title" id="includedTitle" style="display:none">📥 特别收录 <small>用户收录 + 商业价值发现（评估后入榜，长期保留）</small></h2>
   <div class="picks" id="included" style="display:none"></div>
 
   <h2 class="section-title">评分方法 <small>五维打分，S/A/B/C 分级</small></h2>
@@ -124,6 +124,7 @@ const DATA = {"mode":"portal","subtitle":"每周、每月、每年从 GitHub 热
   const latest = Object.values(periods).filter(Boolean);
   const allItems = latest.flatMap(e => e.items || []);
   const included = DATA.included || [];
+  const SPECIAL_SOURCES = new Set(["user-search", "commercial-discovery"]);
   const sCount = allItems.filter(i => i.commercial?.tier === "S").length;
   const aCount = allItems.filter(i => i.commercial?.tier === "A").length;
   const editionsCount = DATA.archive.length;
@@ -132,7 +133,7 @@ const DATA = {"mode":"portal","subtitle":"每周、每月、每年从 GitHub 热
     ["最新三榜项目", allItems.length, "个"],
     ["S / A 级项目", sCount + " / " + aCount, "个"],
   ];
-  if (included.length) statRows.push(["📥 用户收录", included.length, "个"]);
+  if (included.length) statRows.push(["📥 特别收录", included.length, "个"]);
   statRows.push(["最近更新", DATA.lastUpdate, ""]);
   $("#stats").innerHTML = statRows.map(([k, v, u]) => `<div class="stat"><div class="k">${esc(k)}</div><div class="v">${esc(v)}<em>${esc(u)}</em></div></div>`).join("");
 
@@ -148,7 +149,7 @@ const DATA = {"mode":"portal","subtitle":"每周、每月、每年从 GitHub 热
     return `<div class="pcard">
       <div class="top"><span class="period-name">${periodNames[p]}</span><span class="label">${esc(e.label)}</span></div>
       <div class="period-text">${esc(e.periodText)} · ${e.items.length} 个项目 · 平均 ${avg} 分${incN ? " · 收录 " + incN + " 个" : ""}</div>
-      <div class="mini">${top.map((it, i) => `<div class="mini-row"><span class="rk">${i + 1}</span><span class="nm"><a href="${esc(e.file)}#${esc(it.fullName)}">${it.source === "user-search" ? '<span class="badge-inc">收录</span>' : ""}${esc(it.name)}</a></span><span class="${tierCls(it.commercial?.tier)}">${esc(it.commercial?.tier || "C")}</span><span class="sc">${it.commercial?.score ?? "-"}</span></div>`).join("")}</div>
+      <div class="mini">${top.map((it, i) => `<div class="mini-row"><span class="rk">${i + 1}</span><span class="nm"><a href="${esc(e.file)}#${esc(it.fullName)}">${SPECIAL_SOURCES.has(it.source) ? `<span class="badge-inc">${it.source === "commercial-discovery" ? "🧭" : "📥"}</span>` : ""}${esc(it.name)}</a></span><span class="${tierCls(it.commercial?.tier)}">${esc(it.commercial?.tier || "C")}</span><span class="sc">${it.commercial?.score ?? "-"}</span></div>`).join("")}</div>
       <div class="foot"><span class="meta">更新于 ${esc(new Date(e.generatedAt).toLocaleDateString("zh-CN"))}</span><a class="btn primary" href="${esc(e.file)}">查看完整榜单 →</a></div>
     </div>`;
   }).join("");
@@ -160,22 +161,25 @@ const DATA = {"mode":"portal","subtitle":"每周、每月、每年从 GitHub 热
     if (!cur || (it.commercial?.score || 0) > (cur.commercial?.score || 0)) map.set(it.fullName, it);
   }
   const picks = [...map.values()].sort((a, b) => (b.commercial?.score || 0) - (a.commercial?.score || 0)).slice(0, 8);
+  const incBadge = (it) => SPECIAL_SOURCES.has(it.source)
+    ? `<span class="badge-inc">${it.source === "commercial-discovery" ? "🧭 发现" : "📥 用户"}</span>`
+    : "";
   $("#picks").innerHTML = picks.map((it) => `<a class="pick" href="${esc(DATA.itemLinks[it.fullName] || "#")}">
     <span class="score">${it.commercial?.score ?? "-"}</span>
-    <span class="info"><span class="nm">${it.source === "user-search" ? '<span class="badge-inc">收录</span>' : ""}${esc(it.name)} <span style="color:var(--dim);font-weight:500">· ${esc(it.fullName)}</span></span>
+    <span class="info"><span class="nm">${incBadge(it)}${esc(it.name)} <span style="color:var(--dim);font-weight:500">· ${esc(it.fullName)}</span></span>
     <span class="one">${esc(it.commercial?.monetization || it.tagline)}</span></span>
     <span class="tags"><span class="${tierCls(it.commercial?.tier)}">${esc(it.commercial?.tier || "C")}</span></span>
   </a>`).join("");
 
-  // 用户收录（跨期长期展示）
+  // 特别收录（用户收录 + 商业价值发现，跨期长期展示）
   if (included.length) {
     $("#includedTitle").style.display = "";
     const box = $("#included");
     box.style.display = "";
     box.innerHTML = included.map((it) => `<a class="pick" href="${esc(it.editionFile)}#${esc(it.fullName)}">
       <span class="score">${it.commercial?.score ?? "-"}</span>
-      <span class="info"><span class="nm"><span class="badge-inc">收录</span>${esc(it.name)} <span style="color:var(--dim);font-weight:500">· ${esc(it.fullName)}</span></span>
-      <span class="one">${esc(it.tagline || it.commercial?.monetization || "")}${it.keyword ? " · 关键词：" + esc(it.keyword) : ""}</span></span>
+      <span class="info"><span class="nm">${incBadge(it)}${esc(it.name)} <span style="color:var(--dim);font-weight:500">· ${esc(it.fullName)}</span></span>
+      <span class="one">${esc(it.tagline || it.commercial?.monetization || "")}${it.source === "commercial-discovery" ? (Array.isArray(it.discoveredBy) && it.discoveredBy.length ? " · 发现策略：" + esc(it.discoveredBy.join(" / ")) : "") : (it.keyword ? " · 关键词：" + esc(it.keyword) : "")}</span></span>
       <span class="tags"><span class="${tierCls(it.commercial?.tier)}">${esc(it.commercial?.tier || "C")}</span></span>
     </a>`).join("");
   }

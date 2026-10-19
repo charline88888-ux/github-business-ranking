@@ -173,6 +173,7 @@
       <option value="score">按商业价值分</option>
       <option value="period">按本期新增 Star</option>
       <option value="stars">按总 Star</option>
+      <option value="included">按收录时间</option>
       <option value="name">按名称</option>
     </select>
     <button class="btn" id="expandAll">展开全部</button>
@@ -215,7 +216,8 @@ window.__EDITION__ = DATA;
   const sCount = items.filter(i => i.commercial?.tier === "S").length;
   const aCount = items.filter(i => i.commercial?.tier === "A").length;
   const avgScore = Math.round(items.reduce((a, b) => a + (b.commercial?.score || 0), 0) / items.length);
-  const userCount = items.filter(i => i.source === "user-search").length;
+  const SPECIAL_SOURCES = new Set(["user-search", "commercial-discovery"]);
+  const specialCount = items.filter(i => SPECIAL_SOURCES.has(i.source)).length;
   const statRows = [
     ["上榜项目", items.length, "个"],
     ["总 Star", fmt(totalStars), ""],
@@ -223,7 +225,7 @@ window.__EDITION__ = DATA;
     ["S / A 级", sCount + " / " + aCount, "个"],
     ["平均商业分", avgScore, "分"],
   ];
-  if (userCount) statRows.push(["📥 用户收录", userCount, "个"]);
+  if (specialCount) statRows.push(["📥 特别收录", specialCount, "个"]);
   $("#stats").innerHTML = statRows.map(([k, v, unit]) => `<div class="stat"><div class="k">${esc(k)}</div><div class="v">${esc(v)}<em>${esc(unit)}</em></div></div>`).join("");
   $("#footSource").innerHTML = '数据来源：<a href="' + esc(report.source) + '" target="_blank" rel="noreferrer">' + esc(report.period === "year" ? "GitHub Search API" : "GitHub Trending") + '</a>';
   $("#footCadence").textContent = DATA.cadence || "";
@@ -257,10 +259,10 @@ window.__EDITION__ = DATA;
     el.className = "chip"; el.dataset.cat = c.id; el.innerHTML = c.emoji + " " + esc(c.name) + ' <span class="n">' + n + "</span>";
     chips.appendChild(el);
   }
-  if (userCount) {
+  if (specialCount) {
     const el = document.createElement("div");
-    el.className = "chip"; el.dataset.cat = "__user";
-    el.innerHTML = '📥 用户收录 <span class="n">' + userCount + "</span>";
+    el.className = "chip"; el.dataset.cat = "__special";
+    el.innerHTML = '📥 特别收录 <span class="n">' + specialCount + "</span>";
     chips.appendChild(el);
   }
   chips.addEventListener("click", (e) => {
@@ -287,10 +289,10 @@ window.__EDITION__ = DATA;
   function filtered() {
     let list = items.filter(it => {
       if (state.tier !== "all" && it.commercial?.tier !== state.tier) return false;
-      if (state.cat === "__user") { if (it.source !== "user-search") return false; }
+      if (state.cat === "__special") { if (!SPECIAL_SOURCES.has(it.source)) return false; }
       else if (state.cat !== "all" && it.categoryId !== state.cat) return false;
       if (!state.q) return true;
-      const hay = [it.name, it.fullName, it.tagline, it.audience, it.commercial?.monetization, it.commercial?.rationale, it.source === "user-search" ? "用户收录 收录" : "", ...(it.tags || []), ...(it.features || []), ...(it.scenarios || [])].join(" ").toLowerCase();
+      const hay = [it.name, it.fullName, it.tagline, it.audience, it.commercial?.monetization, it.commercial?.rationale, SPECIAL_SOURCES.has(it.source) ? "特别收录 用户收录 商业发现 收录 发现" : "", ...(it.tags || []), ...(it.features || []), ...(it.scenarios || [])].join(" ").toLowerCase();
       return hay.includes(state.q);
     });
     const cmp = {
@@ -298,6 +300,7 @@ window.__EDITION__ = DATA;
       score: (a, b) => (b.commercial?.score || 0) - (a.commercial?.score || 0),
       period: (a, b) => (b.periodStars || 0) - (a.periodStars || 0),
       stars: (a, b) => (b.stars || 0) - (a.stars || 0),
+      included: (a, b) => String(b.includedAt || "").localeCompare(String(a.includedAt || "")),
       name: (a, b) => a.name.localeCompare(b.name),
     }[state.sort];
     return list.sort(cmp);
@@ -327,7 +330,7 @@ window.__EDITION__ = DATA;
         </div>
         <p class="tagline">${esc(it.tagline)}</p>
         <div class="meta">
-          ${it.source === "user-search" ? '<span class="user-pill" title="用户关键词搜索 + 商业价值评估后收录">📥 用户收录</span>' : ""}
+          ${SPECIAL_SOURCES.has(it.source) ? `<span class="user-pill" title="${it.source === "commercial-discovery" ? "商业价值发现：按商业信号主动挖掘并评估后收录" : "用户关键词搜索 + 商业价值评估后收录"}">${it.source === "commercial-discovery" ? "🧭 商业发现" : "📥 用户收录"}</span>` : ""}
           <span class="tier-badge ${tier}">${tier} 级</span>
           <span class="lang"><i style="background:${lc}"></i>${esc(it.language || "—")}</span>
           <span class="stars">★ <b>${fmt(it.stars)}</b></span>
