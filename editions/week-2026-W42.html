@@ -89,6 +89,7 @@
   .tier-badge.A { color: #052e16; background: linear-gradient(135deg, #93c5fd, #60a5fa); }
   .tier-badge.B { color: #451a03; background: linear-gradient(135deg, #fde68a, #fbbf24); }
   .tier-badge.C { color: #0f172a; background: linear-gradient(135deg, #e2e8f0, #94a3b8); }
+  .user-pill { display: inline-flex; align-items: center; gap: 4px; font-weight: 800; font-size: 11.5px; padding: 2px 8px; border-radius: 7px; color: #7dd3fc; background: rgba(56,189,248,.12); border: 1px solid rgba(56,189,248,.38); white-space: nowrap; }
   .score-line { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 10px; border-radius: 10px; background: rgba(52,211,153,.06); border: 1px solid rgba(52,211,153,.16); font-size: 12.5px; color: var(--muted); }
   .score-line .score { font-size: 19px; font-weight: 800; color: #a7f3d0; flex: none; }
   .score-line .label { white-space: nowrap; flex: none; color: var(--muted); }
@@ -214,13 +215,16 @@ window.__EDITION__ = DATA;
   const sCount = items.filter(i => i.commercial?.tier === "S").length;
   const aCount = items.filter(i => i.commercial?.tier === "A").length;
   const avgScore = Math.round(items.reduce((a, b) => a + (b.commercial?.score || 0), 0) / items.length);
-  $("#stats").innerHTML = [
+  const userCount = items.filter(i => i.source === "user-search").length;
+  const statRows = [
     ["上榜项目", items.length, "个"],
     ["总 Star", fmt(totalStars), ""],
     [report.period === "year" ? "年度新榜" : periodWord + " Star", report.period === "year" ? "本年度" : fmt(totalPeriod), report.period === "year" ? "" : ""],
     ["S / A 级", sCount + " / " + aCount, "个"],
     ["平均商业分", avgScore, "分"],
-  ].map(([k, v, unit]) => `<div class="stat"><div class="k">${esc(k)}</div><div class="v">${esc(v)}<em>${esc(unit)}</em></div></div>`).join("");
+  ];
+  if (userCount) statRows.push(["📥 用户收录", userCount, "个"]);
+  $("#stats").innerHTML = statRows.map(([k, v, unit]) => `<div class="stat"><div class="k">${esc(k)}</div><div class="v">${esc(v)}<em>${esc(unit)}</em></div></div>`).join("");
   $("#footSource").innerHTML = '数据来源：<a href="' + esc(report.source) + '" target="_blank" rel="noreferrer">' + esc(report.period === "year" ? "GitHub Search API" : "GitHub Trending") + '</a>';
   $("#footCadence").textContent = DATA.cadence || "";
 
@@ -253,6 +257,12 @@ window.__EDITION__ = DATA;
     el.className = "chip"; el.dataset.cat = c.id; el.innerHTML = c.emoji + " " + esc(c.name) + ' <span class="n">' + n + "</span>";
     chips.appendChild(el);
   }
+  if (userCount) {
+    const el = document.createElement("div");
+    el.className = "chip"; el.dataset.cat = "__user";
+    el.innerHTML = '📥 用户收录 <span class="n">' + userCount + "</span>";
+    chips.appendChild(el);
+  }
   chips.addEventListener("click", (e) => {
     const chip = e.target.closest(".chip");
     if (!chip) return;
@@ -277,9 +287,10 @@ window.__EDITION__ = DATA;
   function filtered() {
     let list = items.filter(it => {
       if (state.tier !== "all" && it.commercial?.tier !== state.tier) return false;
-      if (state.cat !== "all" && it.categoryId !== state.cat) return false;
+      if (state.cat === "__user") { if (it.source !== "user-search") return false; }
+      else if (state.cat !== "all" && it.categoryId !== state.cat) return false;
       if (!state.q) return true;
-      const hay = [it.name, it.fullName, it.tagline, it.audience, it.commercial?.monetization, it.commercial?.rationale, ...(it.tags || []), ...(it.features || []), ...(it.scenarios || [])].join(" ").toLowerCase();
+      const hay = [it.name, it.fullName, it.tagline, it.audience, it.commercial?.monetization, it.commercial?.rationale, it.source === "user-search" ? "用户收录 收录" : "", ...(it.tags || []), ...(it.features || []), ...(it.scenarios || [])].join(" ").toLowerCase();
       return hay.includes(state.q);
     });
     const cmp = {
@@ -316,6 +327,7 @@ window.__EDITION__ = DATA;
         </div>
         <p class="tagline">${esc(it.tagline)}</p>
         <div class="meta">
+          ${it.source === "user-search" ? '<span class="user-pill" title="用户关键词搜索 + 商业价值评估后收录">📥 用户收录</span>' : ""}
           <span class="tier-badge ${tier}">${tier} 级</span>
           <span class="lang"><i style="background:${lc}"></i>${esc(it.language || "—")}</span>
           <span class="stars">★ <b>${fmt(it.stars)}</b></span>
